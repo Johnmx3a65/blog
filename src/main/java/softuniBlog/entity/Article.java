@@ -23,7 +23,7 @@ public class Article {
 
     private byte[] articlePicture;
 
-    private String articlePictureName;
+    private String articleBase64;
 
     public Article() {
     }
@@ -103,13 +103,12 @@ public class Article {
         this.articlePicture = articlePicture;
     }
 
-    @Column(name = "articlePictureName")
-    public String getArticlePictureName() {
-        return articlePictureName;
+    public String getArticleBase64() {
+        return articleBase64;
     }
 
-    public void setArticlePictureName(String articlePictureName) {
-        this.articlePictureName = articlePictureName;
+    public void setArticleBase64(String articleBase64) {
+        this.articleBase64 = articleBase64;
     }
 
     @Transient

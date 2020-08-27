@@ -65,9 +65,6 @@ public class ArticleServiceImpl implements ArticleService {
 
         if(articleBindingModel.getArticlePicture() != null){
             byte[] imageFile = articleBindingModel.getArticlePicture().getBytes();
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFileName = uuidFile + "." + articleBindingModel.getArticlePicture().getOriginalFilename();
-            articleEntity.setArticlePictureName(resultFileName);
             articleEntity.setArticlePicture(imageFile);
         }
 

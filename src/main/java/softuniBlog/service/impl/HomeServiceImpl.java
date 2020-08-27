@@ -12,6 +12,8 @@ import softuniBlog.service.HomeService;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Arrays;
+import java.util.Base64;
 import java.util.List;
 import java.util.Set;
 
@@ -40,16 +42,8 @@ public class HomeServiceImpl implements HomeService {
         Set<Article> articles = category.getArticles();
 
         for (Article article : articles){
-            if(article.getArticlePictureName() != null && article.getArticlePicture() != null){
-                String filePath = "E:/Programming/blog/target/classes/static/image/" + article.getArticlePictureName();
-                if(!(new File(filePath).isFile())){
-                    File profileImage = new File(filePath);
-                    if(profileImage.createNewFile()){
-                        FileOutputStream fos = new FileOutputStream(filePath);
-                        fos.write(article.getArticlePicture());
-                        fos.close();
-                    }
-                }
+            if(article.getArticlePicture() != null){
+                article.setArticleBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
             }
         }
 
