@@ -1,7 +1,6 @@
 package softuniBlog.entity;
 
 import javax.persistence.*;
-import java.io.File;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -23,7 +22,7 @@ public class Article {
 
     private byte[] articlePicture;
 
-    private String articleBase64;
+    private String articlePictureBase64;
 
     public Article() {
     }
@@ -103,12 +102,12 @@ public class Article {
         this.articlePicture = articlePicture;
     }
 
-    public String getArticleBase64() {
-        return articleBase64;
+    public String getArticlePictureBase64() {
+        return articlePictureBase64;
     }
 
-    public void setArticleBase64(String articleBase64) {
-        this.articleBase64 = articleBase64;
+    public void setArticlePictureBase64(String articleBase64) {
+        this.articlePictureBase64 = articleBase64;
     }
 
     @Transient

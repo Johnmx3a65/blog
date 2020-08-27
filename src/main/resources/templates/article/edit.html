@@ -1,7 +1,7 @@
 <main>
     <div class="container body-content span=8 offset=2">
         <div class="well">
-            <form class="form-horizontal" th:action="@{/article/edit/{id}(id=${article.id})}" method="POST">
+            <form class="form-horizontal" th:action="@{/article/edit/{id}(id=${article.id})}" method="POST", enctype="multipart/form-data">
                 <fieldset>
                     <legend>Edit Post</legend>
                     <div class="form-group">
@@ -10,6 +10,14 @@
                             <input type="text" class="form-control" id="article_title" placeholder="Post Title" name="title" th:value="${article.title}"/>
                         </div>
                     </div>
+
+                    <div class="form-group">
+                        <label class="col-sm-4 control-label" for="article_picture">Article Picture</label>
+                        <div class="col-sm-4">
+                            <input type="file" class="form-control" id="article_picture" placeholder="article picture" multiple accept="image/*,image/jpeg" name="articlePicture"/>
+                        </div>
+                    </div>
+
                     <div class="form-group">
                         <label class="col-sm-4 control-label" for="article_content">Content</label>
                         <div class="col-sm-6">

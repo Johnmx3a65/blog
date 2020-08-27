@@ -16,7 +16,7 @@ public interface ArticleService {
 
     String loadArticleEditView(@PathVariable Integer id, Model model);
 
-    String editArticle(@PathVariable Integer id, ArticleBindingModel articleBindingModel);
+    String editArticle(@PathVariable Integer id, ArticleBindingModel articleBindingModel) throws IOException;
 
     String loadArticleDeleteView(Model model, @PathVariable Integer id);
 

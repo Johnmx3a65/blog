@@ -9,10 +9,7 @@ import softuniBlog.entity.Category;
 import softuniBlog.repository.CategoryRepository;
 import softuniBlog.service.HomeService;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
 import java.util.Set;
@@ -43,7 +40,7 @@ public class HomeServiceImpl implements HomeService {
 
         for (Article article : articles){
             if(article.getArticlePicture() != null){
-                article.setArticleBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
+                article.setArticlePictureBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
             }
         }
 

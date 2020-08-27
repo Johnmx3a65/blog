@@ -121,7 +121,7 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public String editArticle(@PathVariable Integer id, ArticleBindingModel articleBindingModel){
+    public String editArticle(@PathVariable Integer id, ArticleBindingModel articleBindingModel) throws IOException {
         if(!this.articleRepository.existsById(id)){
             return "redirect:/";
         }
@@ -134,6 +134,11 @@ public class ArticleServiceImpl implements ArticleService {
 
         Category category = this.categoryRepository.getOne(articleBindingModel.getCategoryId());
         HashSet<Tag> tags = this.findTagsFromString(articleBindingModel.getTagString());
+
+        if(articleBindingModel.getArticlePicture() != null){
+            byte[] imageFile = articleBindingModel.getArticlePicture().getBytes();
+            article.setArticlePicture(imageFile);
+        }
 
         article.setTags(tags);
         article.setCategory(category);

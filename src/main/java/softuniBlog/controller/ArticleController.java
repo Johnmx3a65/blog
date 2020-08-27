@@ -39,7 +39,7 @@ public class ArticleController extends ArticleServiceImpl {
 
     @PostMapping("/article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
-    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel){
+    public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel) throws IOException {
         return editArticle(id, articleBindingModel);
     }
 

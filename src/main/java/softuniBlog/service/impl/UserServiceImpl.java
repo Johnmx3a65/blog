@@ -1,7 +1,6 @@
 package softuniBlog.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -10,22 +9,20 @@ import org.springframework.security.web.authentication.logout.SecurityContextLog
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PathVariable;
 import softuniBlog.bindingModel.UserBindingModel;
 import softuniBlog.bindingModel.UserEditBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Role;
 import softuniBlog.entity.User;
-import softuniBlog.repository.CategoryRepository;
 import softuniBlog.repository.RoleRepository;
 import softuniBlog.repository.UserRepository;
 import softuniBlog.service.UserService;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
+import java.util.Base64;
 import java.util.Set;
 import java.util.UUID;
 
@@ -66,9 +63,6 @@ public class UserServiceImpl implements UserService {
 
         if(userBindingModel.getProfilePicture() != null){
             byte[] imageFile = userBindingModel.getProfilePicture().getBytes();
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFileName = uuidFile + "." + userBindingModel.getProfilePicture().getOriginalFilename();
-            user.setImageName(resultFileName);
             user.setProfilePicture(imageFile);
         }
 
@@ -135,18 +129,16 @@ public class UserServiceImpl implements UserService {
 
         User user = this.userRepository.findByEmail(principal.getUsername());
 
-        if(user.getImageName() != null && user.getProfilePicture() != null){
-            String filePath = "E:/Programming/blog/target/classes/static/image/" + user.getImageName();
-            if(!(new File(filePath).isFile())){
-                File profileImage = new File(filePath);
-                if(profileImage.createNewFile()){
-                    FileOutputStream fos = new FileOutputStream(filePath);
-                    fos.write(user.getProfilePicture());
-                    fos.close();
-                }
-            }
+        if(user.getProfilePicture() != null){
+            user.setProfilePictureBase64(Base64.getEncoder().encodeToString(user.getProfilePicture()));
         }
         Set<Article> articles = user.getArticles();
+
+        for (Article article : articles){
+            if(article.getArticlePicture() != null){
+                article.setArticlePictureBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
+            }
+        }
 
         model.addAttribute("articles", articles);
         model.addAttribute("user", user);
@@ -259,9 +251,6 @@ public class UserServiceImpl implements UserService {
 
         if(!userEditBindingModel.getProfilePicture().isEmpty()){
             byte[] imageFile = userEditBindingModel.getProfilePicture().getBytes();
-            String uuidFile = UUID.randomUUID().toString();
-            String resultFileName = uuidFile + "." + userEditBindingModel.getProfilePicture().getOriginalFilename();
-            user.setImageName(resultFileName);
             user.setProfilePicture(imageFile);
         }
 
