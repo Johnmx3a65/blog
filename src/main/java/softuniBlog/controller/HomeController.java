@@ -37,6 +37,9 @@ public class HomeController extends HomeServiceImpl {
 
     @RequestMapping("/error/403")
     public String accessDenied(Model model){
-        return loadError403View(model);
+
+        model.addAttribute("view", "error/403");
+
+        return "base-layout";
     }
 }

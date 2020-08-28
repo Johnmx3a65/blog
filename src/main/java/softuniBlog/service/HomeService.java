@@ -13,6 +13,4 @@ import java.util.Set;
 public interface HomeService {
 
     Set<Article> articlesInCategory(Integer id) throws IOException;
-
-    String loadError403View(Model model);
 }
