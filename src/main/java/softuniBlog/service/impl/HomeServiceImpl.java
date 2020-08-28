@@ -2,7 +2,6 @@ package softuniBlog.service.impl;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Category;
 import softuniBlog.repository.CategoryRepository;
@@ -39,12 +38,5 @@ public class HomeServiceImpl implements HomeService {
         }
 
         return articles;
-    }
-
-    @Override
-    public String loadError403View(Model model){
-        model.addAttribute("view", "error/403");
-
-        return "base-layout";
     }
 }
