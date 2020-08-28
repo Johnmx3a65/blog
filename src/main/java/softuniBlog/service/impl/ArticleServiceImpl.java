@@ -19,6 +19,7 @@ import softuniBlog.repository.UserRepository;
 import softuniBlog.service.ArticleService;
 
 import java.io.IOException;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.UUID;
@@ -88,6 +89,10 @@ public class ArticleServiceImpl implements ArticleService {
             model.addAttribute("user", entityUser);
         }
         Article article = this.articleRepository.getOne(id);
+
+        if(article.getArticlePicture() != null){
+            article.setArticlePictureBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
+        }
 
         model.addAttribute("article", article);
         model.addAttribute("view", "article/details");

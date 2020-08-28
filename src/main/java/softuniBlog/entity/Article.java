@@ -115,5 +115,4 @@ public class Article {
         return this.getContent().substring(0, this.getContent().length()/2) + "...";
     }
 
-
 }

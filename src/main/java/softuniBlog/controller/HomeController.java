@@ -15,12 +15,24 @@ public class HomeController extends HomeServiceImpl {
 
     @GetMapping("/")
     public String index(Model model) {
-        return loadIndexView(model);
+        model.addAttribute("view", "home/index");
+        model.addAttribute("categories", getCategoryRepository().findAll());
+
+        return "base-layout";
     }
 
     @GetMapping("/category/{id}")
     public String listArticles(Model model, @PathVariable Integer id) throws IOException {
-        return loadListArticlesView(model, id);
+
+        if(!getCategoryRepository().existsById(id)){
+            return "redirect:/";
+        }
+
+        model.addAttribute("articles", articlesInCategory(id));
+        model.addAttribute("category", getCategoryRepository().getOne(id));
+        model.addAttribute("view", "home/list-articles");
+
+        return "base-layout";
     }
 
     @RequestMapping("/error/403")
