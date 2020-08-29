@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,22 +36,45 @@ public class ArticleServiceImpl implements ArticleService {
     @Autowired
     private TagRepository tagRepository;
 
-    @Override
-    public String loadCreateArticleView(Model model){
-        List<Category> categories = this.categoryRepository.findAll();
+    public ArticleRepository getArticleRepository() {
+        return articleRepository;
+    }
 
-        model.addAttribute("categories", categories);
-        model.addAttribute("view", "article/create");
+    public void setArticleRepository(ArticleRepository articleRepository) {
+        this.articleRepository = articleRepository;
+    }
 
-        return "base-layout";
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
+
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
+    public CategoryRepository getCategoryRepository() {
+        return categoryRepository;
+    }
+
+    public void setCategoryRepository(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
+
+    public TagRepository getTagRepository() {
+        return tagRepository;
+    }
+
+    public void setTagRepository(TagRepository tagRepository) {
+        this.tagRepository = tagRepository;
     }
 
     @Override
-    public String createArticle(ArticleBindingModel articleBindingModel) throws IOException {
+    public void createArticle(ArticleBindingModel articleBindingModel) throws IOException {
+
         UserDetails user = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
-        User userEntity = this.userRepository.findByEmail(user.getUsername());
-        Category category = this.categoryRepository.getOne(articleBindingModel
+        User userEntity = getUserRepository().findByEmail(user.getUsername());
+        Category category = getCategoryRepository().getOne(articleBindingModel
                 .getCategoryId());
         HashSet<Tag> tags = this.findTagsFromString(articleBindingModel.getTagString());
 
@@ -69,35 +91,32 @@ public class ArticleServiceImpl implements ArticleService {
             articleEntity.setArticlePicture(imageFile);
         }
 
-        this.articleRepository.saveAndFlush(articleEntity);
-
-        return "redirect:/";
+        getArticleRepository().saveAndFlush(articleEntity);
     }
 
     @Override
-    public String loadArticleDetailsView(Model model, @PathVariable Integer id){
-        if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
-        }
-        if(!(SecurityContextHolder.getContext().getAuthentication()
-                instanceof AnonymousAuthenticationToken)){
-            UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
-                    .getAuthentication().getPrincipal();
+    public Article loadArticleDetailsView(Integer id){
 
-            User entityUser = this.userRepository.findByEmail(principal.getUsername());
-
-            model.addAttribute("user", entityUser);
-        }
-        Article article = this.articleRepository.getOne(id);
+        Article article = getArticleRepository().getOne(id);
 
         if(article.getArticlePicture() != null){
             article.setArticlePictureBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
         }
+        return  article;
 
-        model.addAttribute("article", article);
-        model.addAttribute("view", "article/details");
+    }
 
-        return "base-layout";
+    @Override
+    public User addUserEntityToDetailsView(){
+        if(!(SecurityContextHolder.getContext().getAuthentication()
+                instanceof AnonymousAuthenticationToken)){
+
+            UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
+                    .getAuthentication().getPrincipal();
+
+            return getUserRepository().findByEmail(principal.getUsername());
+        }
+        return null;
     }
 
     @Override
