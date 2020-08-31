@@ -91,6 +91,7 @@ public class UserController extends UserServiceImpl {
     @GetMapping("/profile")
     @PreAuthorize("isAuthenticated()")
     public String profilePage(Model model) throws IOException {
+
         User user = loadUserInfoForProfilePageView();
         Set<Article> articles = loadArticlesInfoForProfilePageView(user);
 

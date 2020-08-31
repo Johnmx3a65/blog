@@ -117,6 +117,7 @@ public class UserServiceImpl implements UserService {
         if (user.getProfilePicture() != null) {
             user.setProfilePictureBase64(Base64.getEncoder().encodeToString(user.getProfilePicture()));
         }
+
         return user;
     }
 

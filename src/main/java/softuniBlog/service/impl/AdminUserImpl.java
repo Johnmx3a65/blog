@@ -3,9 +3,7 @@ package softuniBlog.service.impl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import softuniBlog.bindingModel.UserEditBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Role;
@@ -16,7 +14,6 @@ import softuniBlog.repository.UserRepository;
 import softuniBlog.service.AdminUser;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 
 @Service
@@ -29,38 +26,33 @@ public class AdminUserImpl implements AdminUser{
     @Autowired
     private RoleRepository roleRepository;
 
-    @Override
-    public String loadlistUsersView(Model model){
-        List<User> users = this.userRepository.findAll();
+    public UserRepository getUserRepository() {
+        return userRepository;
+    }
 
-        model.addAttribute("users", users);
-        model.addAttribute("view", "admin/users/list");
+    public void setUserRepository(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
-        return "base-layout";
+    public ArticleRepository getArticleRepository() {
+        return articleRepository;
+    }
+
+    public void setArticleRepository(ArticleRepository articleRepository) {
+        this.articleRepository = articleRepository;
+    }
+
+    public RoleRepository getRoleRepository() {
+        return roleRepository;
+    }
+
+    public void setRoleRepository(RoleRepository roleRepository) {
+        this.roleRepository = roleRepository;
     }
 
     @Override
-    public String loadUserEditView(@PathVariable Integer id, Model model){
-        if(!this.userRepository.existsById(id)){
-            return "redirect:/admin/users/";
-        }
-        User user = this.userRepository.getOne(id);
-        List<Role>roles = this.roleRepository.findAll();
-
-        model.addAttribute("user", user);
-        model.addAttribute("roles", roles);
-        model.addAttribute("view", "admin/users/edit");
-
-        return "base-layout";
-    }
-
-    @Override
-    public String editUser(@PathVariable Integer id, UserEditBindingModel userEditBindingModel){
-        if(!this.userRepository.existsById(id)){
-            return "redirect:/admin/users/";
-        }
-
-        User user = this.userRepository.getOne(id);
+    public void editUser(Integer id, UserEditBindingModel userEditBindingModel){
+        User user = getUserRepository().getOne(id);
 
         if(!StringUtils.isEmpty(userEditBindingModel.getPassword())
                 && !StringUtils.isEmpty(userEditBindingModel.getConfirmPassword())){
@@ -81,39 +73,17 @@ public class AdminUserImpl implements AdminUser{
 
         user.setRoles(roles);
 
-        this.userRepository.saveAndFlush(user);
-
-        return "redirect:/admin/users/";
+        getUserRepository().saveAndFlush(user);
     }
 
     @Override
-    public String loadUserDeleteView(@PathVariable Integer id, Model model){
-        if(!this.userRepository.existsById(id)){
-            return "redirect:/admin/users";
-        }
-
-        User user = this.userRepository.getOne(id);
-
-        model.addAttribute("user", user);
-        model.addAttribute("view", "admin/users/delete");
-
-        return "base-layout";
-    }
-
-    @Override
-    public String deleteUser(@PathVariable Integer id){
-        if(!this.userRepository.existsById(id)){
-            return "redirect:/admin/users/";
-        }
-
+    public void deleteUser(Integer id){
         User user = this.userRepository.getOne(id);
 
         for(Article article : user.getArticles()){
-            this.articleRepository.delete(article);
+            getArticleRepository().delete(article);
         }
 
-        this.userRepository.delete(user);
-
-        return "redirect:/admin/users/";
+        getUserRepository().delete(user);
     }
 }
