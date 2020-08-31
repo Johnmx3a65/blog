@@ -4,34 +4,27 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import softuniBlog.bindingModel.UserBindingModel;
 import softuniBlog.bindingModel.UserEditBindingModel;
+import softuniBlog.entity.Article;
+import softuniBlog.entity.User;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Set;
 
 public interface UserService {
 
-    String loadRegisterView(Model model);
+    void registerUser(UserBindingModel userBindingModel) throws IOException;
 
-    String registerUser(UserBindingModel userBindingModel) throws IOException;
+    void sendMail(UserBindingModel userBindingModel);
 
-    String loadLoginView(Model model);
+    void logoutFromPage(HttpServletRequest request, HttpServletResponse response);
 
-    String loadInputEmailView(Model model);
+    User loadUserInfoForProfilePageView();
 
-    String sendMail(UserBindingModel userBindingModel);
+    Set<Article> loadArticlesInfoForProfilePageView(User user);
 
-    String logoutFromPage(HttpServletRequest request, HttpServletResponse response);
+    User changeForgotPassword(Integer id, HttpServletRequest request, UserEditBindingModel userEditBindingModel);
 
-    String loadProfilePageView(Model model) throws IOException;
-
-    String loadSendPasswordForgotMailPageView(Model model);
-
-    String loadForgotPasswordView(@PathVariable Integer id, Model model);
-
-    String changeForgotPassword(@PathVariable Integer id, HttpServletRequest request, UserEditBindingModel userEditBindingModel);
-
-    String loadEditView(@PathVariable Integer id, Model model);
-
-    String editUser(@PathVariable Integer id, UserEditBindingModel userEditBindingModel) throws IOException;
+    void editUser(@PathVariable Integer id, UserEditBindingModel userEditBindingModel) throws IOException;
 }

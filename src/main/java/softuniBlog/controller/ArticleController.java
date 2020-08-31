@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import softuniBlog.bindingModel.ArticleBindingModel;
+import softuniBlog.entity.Article;
 import softuniBlog.entity.Tag;
+import softuniBlog.entity.User;
 import softuniBlog.service.impl.ArticleServiceImpl;
 
 import java.io.IOException;
@@ -41,9 +43,11 @@ public class ArticleController extends ArticleServiceImpl {
         if(!this.getArticleRepository().existsById(id)){
             return "redirect:/";
         }
-        if (addUserEntityToDetailsView() != null){
-            model.addAttribute("user", addUserEntityToDetailsView());
+        User user = addUserEntityToDetailsView();
+        if (user != null){
+            model.addAttribute("user", user);
         }
+
         model.addAttribute("article", loadArticleDetailsView(id));
         model.addAttribute("view", "article/details");
 
@@ -53,18 +57,18 @@ public class ArticleController extends ArticleServiceImpl {
     @GetMapping("article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Integer id, Model model){
-
         if(!getArticleRepository().existsById(id)){
             return "redirect:/";
         }
-        if (!isUserAuthorOrAdmin(getArticleRepository().getOne(id))){
+        Article article = getArticleRepository().getOne(id);
+        if (!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
         }
 
         model.addAttribute("view", "article/edit");
-        model.addAttribute("article", getArticleRepository().getOne(id));
+        model.addAttribute("article", article);
         model.addAttribute("categories", getCategoryRepository().findAll());
-        model.addAttribute("tags", getArticleRepository().getOne(id).getTags().stream().map(Tag::getName).collect(Collectors.joining(", ")));
+        model.addAttribute("tags", article.getTags().stream().map(Tag::getName).collect(Collectors.joining(", ")));
 
         return "base-layout";
     }
@@ -87,10 +91,11 @@ public class ArticleController extends ArticleServiceImpl {
         if(!getArticleRepository().existsById(id)){
             return "redirect:/";
         }
-        if (!isUserAuthorOrAdmin(getArticleRepository().getOne(id))){
+        Article article = getArticleRepository().getOne(id);
+        if (!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
         }
-        model.addAttribute("article", getArticleRepository().getOne(id));
+        model.addAttribute("article", article);
         model.addAttribute("view", "article/delete");
 
         return "base-layout";
@@ -102,10 +107,11 @@ public class ArticleController extends ArticleServiceImpl {
         if(!getArticleRepository().existsById(id)){
             return "redirect:/";
         }
-        if (!isUserAuthorOrAdmin(getArticleRepository().getOne(id))){
+        Article article = getArticleRepository().getOne(id);
+        if (!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
         }
-        getArticleRepository().delete(getArticleRepository().getOne(id));
+        getArticleRepository().delete(article);
         return "redirect:/";
     }
 }
