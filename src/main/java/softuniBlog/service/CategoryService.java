@@ -6,17 +6,9 @@ import softuniBlog.bindingModel.CategoryBindingModel;
 
 public interface CategoryService {
 
-    String loadCategoryListView(Model model);
+    void createCategory(CategoryBindingModel categoryBindingModel);
 
-    String loadCategoryCreateView(Model model);
+    void editCategory(Integer id, CategoryBindingModel categoryBindingModel);
 
-    String createCategory(CategoryBindingModel categoryBindingModel);
-
-    String loadCategoryEditView(Model model, @PathVariable Integer id);
-
-    String editCategory(@PathVariable Integer id, CategoryBindingModel categoryBindingModel);
-
-    String loadCategoryDeleteView(Model model, @PathVariable Integer id);
-
-    String deleteCategory(@PathVariable Integer id);
+    void deleteCategory(@PathVariable Integer id);
 }

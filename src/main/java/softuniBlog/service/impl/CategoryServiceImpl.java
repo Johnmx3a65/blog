@@ -23,95 +23,48 @@ public class CategoryServiceImpl implements CategoryService {
     @Autowired
     private ArticleRepository articleRepository;
 
-    @Override
-    public String loadCategoryListView(Model model){
-        model.addAttribute("view", "admin/categories/list");
+    public CategoryRepository getCategoryRepository() {
+        return categoryRepository;
+    }
 
-        List<Category> categories = this.categoryRepository.findAll();
+    public void setCategoryRepository(CategoryRepository categoryRepository) {
+        this.categoryRepository = categoryRepository;
+    }
 
-        categories = categories.stream()
-                .sorted(Comparator.comparingInt(Category::getId))
-                .collect(Collectors.toList());
+    public ArticleRepository getArticleRepository() {
+        return articleRepository;
+    }
 
-        model.addAttribute("categories", categories);
-
-        return "base-layout";
+    public void setArticleRepository(ArticleRepository articleRepository) {
+        this.articleRepository = articleRepository;
     }
 
     @Override
-    public String loadCategoryCreateView(Model model){
-        model.addAttribute("view", "admin/categories/create");
-
-        return "base-layout";
-    }
-
-    @Override
-    public String createCategory(CategoryBindingModel categoryBindingModel){
-        if(StringUtils.isEmpty(categoryBindingModel.getName())){
-            return "redirect:/admin/categories/create";
-        }
+    public void createCategory(CategoryBindingModel categoryBindingModel){
 
         Category category = new Category(categoryBindingModel.getName());
 
-        this.categoryRepository.saveAndFlush(category);
-
-        return "redirect:/admin/categories/";
+        getCategoryRepository().saveAndFlush(category);
     }
 
     @Override
-    public String loadCategoryEditView(Model model, @PathVariable Integer id){
-        if(!this.categoryRepository.existsById(id)){
-            return "redirect:/admin/categories";
-        }
-        Category category = this.categoryRepository.getOne(id);
-
-        model.addAttribute("category", category);
-        model.addAttribute("view", "admin/categories/edit");
-
-        return "base-layout";
-    }
-
-    @Override
-    public String editCategory(@PathVariable Integer id,
+    public void editCategory(Integer id,
                               CategoryBindingModel categoryBindingModel){
-        if(!this.categoryRepository.existsById(id)){
-            return "redirect:/admin/categories";
-        }
 
         Category category = this.categoryRepository.getOne(id);
 
         category.setName(categoryBindingModel.getName());
 
-        this.categoryRepository.saveAndFlush(category);
-
-        return "redirect:/admin/categories/";
+        getCategoryRepository().saveAndFlush(category);
     }
 
     @Override
-    public String loadCategoryDeleteView(Model model, @PathVariable Integer id){
-        if(!this.categoryRepository.existsById(id)){
-            return "redirect:/admin/categories/";
-        }
-        Category category = this.categoryRepository.getOne(id);
-
-        model.addAttribute("category", category);
-        model.addAttribute("view", "admin/categories/delete");
-
-        return "base-layout";
-    }
-
-    @Override
-    public String deleteCategory(@PathVariable Integer id){
-        if(!this.categoryRepository.existsById(id)){
-            return "redirect:/admin/categories/";
-        }
+    public void deleteCategory(@PathVariable Integer id){
         Category category = this.categoryRepository.getOne(id);
 
         for(Article article : category.getArticles()){
-            this.articleRepository.delete(article);
+            getArticleRepository().delete(article);
         }
-        this.categoryRepository.delete(category);
-
-        return "redirect:/admin/categories/";
+        getCategoryRepository().delete(category);
     }
 }
