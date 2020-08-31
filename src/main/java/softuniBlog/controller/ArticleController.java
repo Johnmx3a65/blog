@@ -7,10 +7,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import softuniBlog.bindingModel.ArticleBindingModel;
-import softuniBlog.entity.User;
+import softuniBlog.entity.Tag;
 import softuniBlog.service.impl.ArticleServiceImpl;
 
 import java.io.IOException;
+import java.util.stream.Collectors;
 
 @Controller
 public class ArticleController extends ArticleServiceImpl {
@@ -40,12 +41,9 @@ public class ArticleController extends ArticleServiceImpl {
         if(!this.getArticleRepository().existsById(id)){
             return "redirect:/";
         }
-
-        User user = addUserEntityToDetailsView();
-        if (user != null){
-            model.addAttribute("user", user);
+        if (addUserEntityToDetailsView() != null){
+            model.addAttribute("user", addUserEntityToDetailsView());
         }
-
         model.addAttribute("article", loadArticleDetailsView(id));
         model.addAttribute("view", "article/details");
 
@@ -55,24 +53,59 @@ public class ArticleController extends ArticleServiceImpl {
     @GetMapping("article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Integer id, Model model){
-        return loadArticleEditView(id, model);
+
+        if(!getArticleRepository().existsById(id)){
+            return "redirect:/";
+        }
+        if (!isUserAuthorOrAdmin(getArticleRepository().getOne(id))){
+            return "redirect:/article/" + id;
+        }
+
+        model.addAttribute("view", "article/edit");
+        model.addAttribute("article", getArticleRepository().getOne(id));
+        model.addAttribute("categories", getCategoryRepository().findAll());
+        model.addAttribute("tags", getArticleRepository().getOne(id).getTags().stream().map(Tag::getName).collect(Collectors.joining(", ")));
+
+        return "base-layout";
     }
 
     @PostMapping("/article/edit/{id}")
     @PreAuthorize("isAuthenticated()")
     public String editProcess(@PathVariable Integer id, ArticleBindingModel articleBindingModel) throws IOException {
-        return editArticle(id, articleBindingModel);
+        if(!getArticleRepository().existsById(id)){
+            return "redirect:/";
+        }
+        if (!isUserAuthorOrAdmin(getArticleRepository().getOne(id))){
+            return "redirect:/article/" + id;
+        }
+        return "redirect:/article/" + editArticle(id, articleBindingModel).getId().toString();
     }
 
     @GetMapping("/article/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public String delete(Model model, @PathVariable Integer id){
-        return loadArticleDeleteView(model, id);
+        if(!getArticleRepository().existsById(id)){
+            return "redirect:/";
+        }
+        if (!isUserAuthorOrAdmin(getArticleRepository().getOne(id))){
+            return "redirect:/article/" + id;
+        }
+        model.addAttribute("article", getArticleRepository().getOne(id));
+        model.addAttribute("view", "article/delete");
+
+        return "base-layout";
     }
 
     @PostMapping("/article/delete/{id}")
     @PreAuthorize("isAuthenticated()")
     public String deleteProcess(@PathVariable Integer id){
-        return deleteArticle(id);
+        if(!getArticleRepository().existsById(id)){
+            return "redirect:/";
+        }
+        if (!isUserAuthorOrAdmin(getArticleRepository().getOne(id))){
+            return "redirect:/article/" + id;
+        }
+        getArticleRepository().delete(getArticleRepository().getOne(id));
+        return "redirect:/";
     }
 }

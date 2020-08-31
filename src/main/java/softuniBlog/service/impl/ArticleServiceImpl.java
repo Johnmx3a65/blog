@@ -5,8 +5,6 @@ import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import softuniBlog.bindingModel.ArticleBindingModel;
 import softuniBlog.entity.Article;
 import softuniBlog.entity.Category;
@@ -21,8 +19,6 @@ import softuniBlog.service.ArticleService;
 import java.io.IOException;
 import java.util.Base64;
 import java.util.HashSet;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class ArticleServiceImpl implements ArticleService {
@@ -120,43 +116,11 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     @Override
-    public String loadArticleEditView(@PathVariable Integer id, Model model){
-        if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
-        }
-        Article article = this.articleRepository.getOne(id);
+    public Article editArticle(Integer id, ArticleBindingModel articleBindingModel) throws IOException {
 
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
-        }
+        Article article = getArticleRepository().getOne(id);
 
-        List<Category> categories = this.categoryRepository.findAll();
-
-        String tagString = article.getTags().stream()
-                .map(Tag::getName)
-                .collect(Collectors.joining(", "));
-
-        model.addAttribute("view", "article/edit");
-        model.addAttribute("article", article);
-        model.addAttribute("categories", categories);
-        model.addAttribute("tags", tagString);
-
-        return "base-layout";
-    }
-
-    @Override
-    public String editArticle(@PathVariable Integer id, ArticleBindingModel articleBindingModel) throws IOException {
-        if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
-        }
-
-        Article article = this.articleRepository.getOne(id);
-
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
-        }
-
-        Category category = this.categoryRepository.getOne(articleBindingModel.getCategoryId());
+        Category category = getCategoryRepository().getOne(articleBindingModel.getCategoryId());
         HashSet<Tag> tags = this.findTagsFromString(articleBindingModel.getTagString());
 
         if(articleBindingModel.getArticlePicture() != null){
@@ -169,42 +133,9 @@ public class ArticleServiceImpl implements ArticleService {
         article.setContent(articleBindingModel.getContent());
         article.setTitle(articleBindingModel.getTitle());
 
-        this.articleRepository.saveAndFlush(article);
+        getArticleRepository().saveAndFlush(article);
 
-        return "redirect:/article/" + article.getId().toString();
-    }
-
-    @Override
-    public String loadArticleDeleteView(Model model, @PathVariable Integer id){
-        if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
-        }
-
-        Article article = this.articleRepository.getOne(id);
-
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
-        }
-
-        model.addAttribute("article", article);
-        model.addAttribute("view", "article/delete");
-
-        return "base-layout";
-    }
-
-    @Override
-    public String deleteArticle(@PathVariable Integer id){
-        if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
-        }
-
-        Article article = this.articleRepository.getOne(id);
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
-        }
-        this.articleRepository.delete(article);
-
-        return "redirect:/";
+        return  article;
     }
 
     private HashSet<Tag> findTagsFromString(String tagString){
@@ -225,7 +156,7 @@ public class ArticleServiceImpl implements ArticleService {
         return tags;
     }
 
-    private boolean isUserAuthorOrAdmin(Article article){
+    protected boolean isUserAuthorOrAdmin(Article article){
         UserDetails user = (UserDetails) SecurityContextHolder.getContext()
                 .getAuthentication().getPrincipal();
 

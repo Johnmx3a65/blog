@@ -1,6 +1,5 @@
 package softuniBlog.service;
 
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import softuniBlog.bindingModel.ArticleBindingModel;
 import softuniBlog.entity.Article;
@@ -16,12 +15,6 @@ public interface ArticleService {
 
     User addUserEntityToDetailsView();
 
-    String loadArticleEditView(@PathVariable Integer id, Model model);
-
-    String editArticle(@PathVariable Integer id, ArticleBindingModel articleBindingModel) throws IOException;
-
-    String loadArticleDeleteView(Model model, @PathVariable Integer id);
-
-    String deleteArticle(@PathVariable Integer id);
+    Article editArticle(Integer id, ArticleBindingModel articleBindingModel) throws IOException;
 
 }
