@@ -1,7 +1,7 @@
 package blog.service.impl;
 
 import blog.service.MailSender;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @Service
+@AllArgsConstructor
 public class UserServiceImpl implements UserService {
 
     private final RoleRepository roleRepository;
@@ -36,13 +37,6 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     private final MailSender mailSender;
-
-    @Autowired
-    public UserServiceImpl(RoleRepository roleRepository, UserRepository userRepository, MailSender mailSender) {
-        this.roleRepository = roleRepository;
-        this.userRepository = userRepository;
-        this.mailSender = mailSender;
-    }
 
     @Override
     public String loadRegisterView(Model model){
@@ -166,7 +160,7 @@ public class UserServiceImpl implements UserService {
             return "redirect:/login";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
 
         model.addAttribute("user", user);
         model.addAttribute("view", "/user/forgot-password");
@@ -182,7 +176,7 @@ public class UserServiceImpl implements UserService {
             return "redirect:/login";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
 
         if(request.getParameter("sendAgain") != null){
             user.setConfirmCode(UUID.randomUUID().toString());
@@ -220,7 +214,7 @@ public class UserServiceImpl implements UserService {
             return "redirect:/profile";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
 
         if(!isMyProfile(user)){
             return "redirect:/profile";
@@ -239,7 +233,7 @@ public class UserServiceImpl implements UserService {
             return "redirect:/profile";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
 
         if(!isMyProfile(user)){
             return "redirect:/profile";

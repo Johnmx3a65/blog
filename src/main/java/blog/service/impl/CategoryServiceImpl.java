@@ -1,6 +1,6 @@
 package blog.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.util.StringUtils;
@@ -16,17 +16,12 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class CategoryServiceImpl implements CategoryService {
 
     private final CategoryRepository categoryRepository;
 
     private final ArticleRepository articleRepository;
-
-    @Autowired
-    public CategoryServiceImpl(CategoryRepository categoryRepository, ArticleRepository articleRepository) {
-        this.categoryRepository = categoryRepository;
-        this.articleRepository = articleRepository;
-    }
 
     @Override
     public String loadCategoryListView(Model model){
@@ -68,7 +63,7 @@ public class CategoryServiceImpl implements CategoryService {
         if(!this.categoryRepository.existsById(id)){
             return "redirect:/admin/categories";
         }
-        Category category = this.categoryRepository.getOne(id);
+        Category category = this.categoryRepository.getReferenceById(id);
 
         model.addAttribute("category", category);
         model.addAttribute("view", "admin/categories/edit");
@@ -83,7 +78,7 @@ public class CategoryServiceImpl implements CategoryService {
             return "redirect:/admin/categories";
         }
 
-        Category category = this.categoryRepository.getOne(id);
+        Category category = this.categoryRepository.getReferenceById(id);
 
         category.setName(categoryModel.getName());
 
@@ -97,7 +92,7 @@ public class CategoryServiceImpl implements CategoryService {
         if(!this.categoryRepository.existsById(id)){
             return "redirect:/admin/categories/";
         }
-        Category category = this.categoryRepository.getOne(id);
+        Category category = this.categoryRepository.getReferenceById(id);
 
         model.addAttribute("category", category);
         model.addAttribute("view", "admin/categories/delete");
@@ -110,7 +105,7 @@ public class CategoryServiceImpl implements CategoryService {
         if(!this.categoryRepository.existsById(id)){
             return "redirect:/admin/categories/";
         }
-        Category category = this.categoryRepository.getOne(id);
+        Category category = this.categoryRepository.getReferenceById(id);
 
         this.articleRepository.deleteAll(category.getArticles());
         this.categoryRepository.delete(category);

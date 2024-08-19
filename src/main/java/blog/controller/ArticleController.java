@@ -1,7 +1,7 @@
 package blog.controller;
 
 import blog.service.ArticleService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -13,14 +13,10 @@ import blog.model.ArticleModel;
 import java.io.IOException;
 
 @Controller
+@AllArgsConstructor
 public class ArticleController {
 
     private final ArticleService articleService;
-
-    @Autowired
-    public ArticleController(ArticleService articleService) {
-        this.articleService = articleService;
-    }
 
     @GetMapping("/article/create")
     @PreAuthorize("isAuthenticated()")

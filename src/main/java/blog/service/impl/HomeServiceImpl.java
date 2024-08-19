@@ -1,6 +1,6 @@
 package blog.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -13,14 +13,10 @@ import java.util.Base64;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class HomeServiceImpl implements HomeService {
 
     private final CategoryRepository categoryRepository;
-
-    @Autowired
-    public HomeServiceImpl(CategoryRepository categoryRepository) {
-        this.categoryRepository = categoryRepository;
-    }
 
     @Override
     public String loadIndexView(Model model) {
@@ -38,7 +34,7 @@ public class HomeServiceImpl implements HomeService {
             return "redirect:/";
         }
 
-        Category category = this.categoryRepository.getOne(id);
+        Category category = this.categoryRepository.getReferenceById(id);
         List<Article> articles = category.getArticles();
 
         for (Article article : articles){

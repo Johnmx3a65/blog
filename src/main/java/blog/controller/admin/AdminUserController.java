@@ -1,7 +1,7 @@
 package blog.controller.admin;
 
 import blog.service.AdminUserService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,14 +12,10 @@ import blog.model.UserEditModel;
 
 @Controller
 @RequestMapping("/admin/users")
+@AllArgsConstructor
 public class AdminUserController {
 
     private final AdminUserService adminUserService;
-
-    @Autowired
-    public AdminUserController(AdminUserService adminUserService) {
-        this.adminUserService = adminUserService;
-    }
 
     @GetMapping("/")
     public String listUsers(Model model){

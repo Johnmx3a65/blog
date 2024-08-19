@@ -1,7 +1,7 @@
 package blog.controller.admin;
 
 import blog.service.CategoryService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -12,14 +12,10 @@ import blog.model.CategoryModel;
 
 @Controller
 @RequestMapping("/admin/categories")
+@AllArgsConstructor
 public class CategoryController {
 
     private final CategoryService categoryService;
-
-    @Autowired
-    public CategoryController(CategoryService categoryService) {
-        this.categoryService = categoryService;
-    }
 
     @GetMapping("/")
     public String list(Model model){

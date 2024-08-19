@@ -1,6 +1,6 @@
 package blog.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -24,8 +24,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
+@AllArgsConstructor
 public class ArticleServiceImpl implements ArticleService {
-
 
     private final ArticleRepository articleRepository;
 
@@ -34,19 +34,6 @@ public class ArticleServiceImpl implements ArticleService {
     private final CategoryRepository categoryRepository;
 
     private final TagRepository tagRepository;
-
-    @Autowired
-    public ArticleServiceImpl(
-        ArticleRepository articleRepository,
-        UserRepository userRepository,
-        CategoryRepository categoryRepository,
-        TagRepository tagRepository
-    ) {
-        this.articleRepository = articleRepository;
-        this.userRepository = userRepository;
-        this.categoryRepository = categoryRepository;
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     public String loadCreateArticleView(Model model){
@@ -102,7 +89,7 @@ public class ArticleServiceImpl implements ArticleService {
             model.addAttribute("user", entityUser);
         }
 
-        Article article = this.articleRepository.getOne(id);
+        Article article = this.articleRepository.getReferenceById(id);
 
         model.addAttribute("article", article);
         model.addAttribute("view", "article/details");
@@ -116,7 +103,7 @@ public class ArticleServiceImpl implements ArticleService {
             return "redirect:/";
         }
 
-        Article article = this.articleRepository.getOne(id);
+        Article article = this.articleRepository.getReferenceById(id);
 
         if (!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
@@ -142,7 +129,7 @@ public class ArticleServiceImpl implements ArticleService {
             return "redirect:/";
         }
 
-        Article article = this.articleRepository.getOne(id);
+        Article article = this.articleRepository.getReferenceById(id);
 
         if (!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
@@ -172,7 +159,7 @@ public class ArticleServiceImpl implements ArticleService {
             return "redirect:/";
         }
 
-        Article article = this.articleRepository.getOne(id);
+        Article article = this.articleRepository.getReferenceById(id);
 
         if (!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
@@ -190,7 +177,7 @@ public class ArticleServiceImpl implements ArticleService {
             return "redirect:/";
         }
 
-        Article article = this.articleRepository.getOne(id);
+        Article article = this.articleRepository.getReferenceById(id);
         if (!isUserAuthorOrAdmin(article)){
             return "redirect:/article/" + id;
         }

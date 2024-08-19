@@ -1,6 +1,6 @@
 package blog.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class AdminUserServiceImpl implements AdminUserService {
 
     private final UserRepository userRepository;
@@ -25,13 +26,6 @@ public class AdminUserServiceImpl implements AdminUserService {
     private final ArticleRepository articleRepository;
 
     private final RoleRepository roleRepository;
-
-    @Autowired
-    public AdminUserServiceImpl(UserRepository userRepository, ArticleRepository articleRepository, RoleRepository roleRepository) {
-        this.userRepository = userRepository;
-        this.articleRepository = articleRepository;
-        this.roleRepository = roleRepository;
-    }
 
     @Override
     public String loadlistUsersView(Model model){
@@ -49,7 +43,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             return "redirect:/admin/users/";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
         List<Role>roles = this.roleRepository.findAll();
 
         model.addAttribute("user", user);
@@ -65,7 +59,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             return "redirect:/admin/users/";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
 
         if(!StringUtils.isEmpty(userEditModel.getPassword())
                 && !StringUtils.isEmpty(userEditModel.getConfirmPassword())){
@@ -82,7 +76,7 @@ public class AdminUserServiceImpl implements AdminUserService {
         List<Role> roles = new LinkedList<>();
 
         for (Integer roleId : userEditModel.getRoles()){
-            roles.add(this.roleRepository.getOne(roleId));
+            roles.add(this.roleRepository.getReferenceById(roleId));
         }
 
         user.setRoles(roles);
@@ -98,7 +92,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             return "redirect:/admin/users";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
 
         model.addAttribute("user", user);
         model.addAttribute("view", "admin/users/delete");
@@ -112,7 +106,7 @@ public class AdminUserServiceImpl implements AdminUserService {
             return "redirect:/admin/users/";
         }
 
-        User user = this.userRepository.getOne(id);
+        User user = this.userRepository.getReferenceById(id);
 
         this.articleRepository.deleteAll(user.getArticles());
 

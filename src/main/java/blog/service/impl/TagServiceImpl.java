@@ -1,6 +1,6 @@
 package blog.service.impl;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,14 +9,10 @@ import blog.repository.TagRepository;
 import blog.service.TagService;
 
 @Service
+@AllArgsConstructor
 public class TagServiceImpl implements TagService {
 
     private final TagRepository tagRepository;
-
-    @Autowired
-    public TagServiceImpl(TagRepository tagRepository) {
-        this.tagRepository = tagRepository;
-    }
 
     @Override
     public String loadArticlesWithTagView(Model model, @PathVariable String name){
