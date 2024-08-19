@@ -1,0 +1,25 @@
+package blog.service;
+
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
+import blog.model.ArticleModel;
+
+import java.io.IOException;
+
+public interface ArticleService {
+
+    String loadCreateArticleView(Model model);
+
+    String createArticle(ArticleModel articleModel) throws IOException;
+
+    String loadArticleDetailsView(Model model, @PathVariable Integer id);
+
+    String loadArticleEditView(@PathVariable Integer id, Model model);
+
+    String editArticle(@PathVariable Integer id, ArticleModel articleModel) throws IOException;
+
+    String loadArticleDeleteView(Model model, @PathVariable Integer id);
+
+    String deleteArticle(@PathVariable Integer id);
+
+}
