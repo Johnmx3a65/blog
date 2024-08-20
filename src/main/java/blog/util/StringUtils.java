@@ -67,7 +67,8 @@ public class StringUtils {
     public static final String CHANGE_PASSWORD = "Change Password";
 
     public static final String LOGOUT = "logout";
+    public static final String SEND_AGAIN = "sendAgain";
 
-    public static final String CONFIRMATION_CODE_MAIL = "Hello, {0}! If you tried to change your password, please go to the next link: http://localhost:8080/user/forgot-password/{1} . Your confirm code: {2} If it's not you, please ignore this message!";
-    public static final String NEW_CONFIRMATION_CODE_MAIL = "Hello, {0}! Your confirm code: {1}. If it's not you, please ignore this message!";
+    public static final String CONFIRMATION_CODE_MAIL = "Hello, {0}! If you tried to change your password, please go to the next link: http://localhost:8080/user/forgot-password/{1} . Your confirm code: {2} If its not you, please ignore this message!";
+    public static final String NEW_CONFIRMATION_CODE_MAIL = "Hello, {0}! Your confirm code: {1}. If its not you, please ignore this message!";
 }

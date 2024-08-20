@@ -27,7 +27,29 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static blog.util.StringUtils.*;
+import static blog.util.StringUtils.ARTICLES;
+import static blog.util.StringUtils.BASE_LAYOUT;
+import static blog.util.StringUtils.CHANGE_PASSWORD;
+import static blog.util.StringUtils.CONFIRMATION_CODE_MAIL;
+import static blog.util.StringUtils.LOGOUT;
+import static blog.util.StringUtils.NEW_CONFIRMATION_CODE_MAIL;
+import static blog.util.StringUtils.REDIRECT_LOGIN;
+import static blog.util.StringUtils.REDIRECT_LOGIN_WITH_QUERY;
+import static blog.util.StringUtils.REDIRECT_PROFILE;
+import static blog.util.StringUtils.REDIRECT_REGISTER;
+import static blog.util.StringUtils.REDIRECT_SEND_MAIL;
+import static blog.util.StringUtils.REDIRECT_USER_FORGOT_PASSWORD_ID;
+import static blog.util.StringUtils.ROLE_USER;
+import static blog.util.StringUtils.SEND_AGAIN;
+import static blog.util.StringUtils.USER;
+import static blog.util.StringUtils.USER_EDIT;
+import static blog.util.StringUtils.USER_FORGOT_PASSWORD;
+import static blog.util.StringUtils.USER_FORGOT_PASSWORD_INPUT_EMAIL;
+import static blog.util.StringUtils.USER_LOGIN;
+import static blog.util.StringUtils.USER_PROFILE;
+import static blog.util.StringUtils.USER_REGISTER;
+import static blog.util.StringUtils.USER_SEND_MAIL;
+import static blog.util.StringUtils.VIEW;
 
 @Service
 @AllArgsConstructor
@@ -42,13 +64,11 @@ public class UserServiceImpl implements UserService {
     @Override
     public String loadRegisterView(Model model){
         model.addAttribute(VIEW, USER_REGISTER);
-
         return BASE_LAYOUT;
     }
 
     @Override
     public String registerUser(UserModel userModel) throws IOException {
-
         if(!userModel.getPassword().equals(userModel.getConfirmPassword())){
             return REDIRECT_REGISTER;
         }
@@ -119,7 +139,7 @@ public class UserServiceImpl implements UserService {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         if(auth != null){
-            new SecurityContextLogoutHandler().logout(request,response,auth);
+            new SecurityContextLogoutHandler().logout(request, response, auth);
         }
 
         return MessageFormat.format(REDIRECT_LOGIN_WITH_QUERY, LOGOUT);
@@ -139,7 +159,8 @@ public class UserServiceImpl implements UserService {
 
         for (Article article : articles){
             if(article.getArticlePicture() != null){
-                article.setArticlePictureBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
+                String articlePictureBase64 = Base64.getEncoder().encodeToString(article.getArticlePicture());
+                article.setArticlePictureBase64(articlePictureBase64);
             }
         }
 
@@ -178,7 +199,7 @@ public class UserServiceImpl implements UserService {
 
         User user = this.userRepository.getReferenceById(id);
 
-        if(request.getParameter("sendAgain") != null){
+        if(request.getParameter(SEND_AGAIN) != null){
             user.setConfirmCode(UUID.randomUUID().toString());
 
             String message = MessageFormat.format(NEW_CONFIRMATION_CODE_MAIL, user.getFullName(), user.getConfirmCode());
@@ -189,24 +210,25 @@ public class UserServiceImpl implements UserService {
             return MessageFormat.format(REDIRECT_USER_FORGOT_PASSWORD_ID, user.getId());
         }
 
-        if(!userEditModel.getPassword().equals(userEditModel.getConfirmPassword()) || !userEditModel.getConfirmCode().equals(user.getConfirmCode())){
-            return MessageFormat.format(REDIRECT_USER_FORGOT_PASSWORD_ID, user.getId());
+        boolean passwordsMatch = userEditModel.getPassword().equals(userEditModel.getConfirmPassword());
+        boolean confirmCodesMatch = userEditModel.getConfirmCode().equals(user.getConfirmCode());
+
+        if(passwordsMatch && confirmCodesMatch){
+            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+            user.setPassword(bCryptPasswordEncoder.encode(userEditModel.getPassword()));
+            user.setConfirmCode(null);
+
+            this.userRepository.saveAndFlush(user);
+
+            return REDIRECT_LOGIN;
         }
 
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-
-        user.setPassword(bCryptPasswordEncoder.encode(userEditModel.getPassword()));
-
-        user.setConfirmCode(null);
-
-        this.userRepository.saveAndFlush(user);
-
-        return REDIRECT_LOGIN;
+        return MessageFormat.format(REDIRECT_USER_FORGOT_PASSWORD_ID, user.getId());
     }
 
     @Override
     public String loadEditView(Integer id, Model model){
-
         if(!this.userRepository.existsById(id)){
             return REDIRECT_PROFILE;
         }
@@ -225,7 +247,6 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public String editUser(Integer id, UserEditModel userEditModel) throws IOException {
-
         if(!this.userRepository.existsById(id)){
             return REDIRECT_PROFILE;
         }
@@ -243,7 +264,6 @@ public class UserServiceImpl implements UserService {
             BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
             user.setPassword(bCryptPasswordEncoder.encode(password));
         }
-
 
         if(!userEditModel.getProfilePicture().isEmpty()){
             byte[] imageFile = userEditModel.getProfilePicture().getBytes();
