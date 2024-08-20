@@ -1,6 +1,6 @@
 package blog.service;
 
-public interface MailSender {
+public interface MailSenderService {
 
     void send(String emailTo, String subject, String message);
 }

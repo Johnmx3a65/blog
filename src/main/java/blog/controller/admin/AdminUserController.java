@@ -19,7 +19,7 @@ public class AdminUserController {
 
     @GetMapping("/")
     public String listUsers(Model model){
-        return this.adminUserService.loadlistUsersView(model);
+        return this.adminUserService.loadListUsersView(model);
     }
 
     @GetMapping("/edit/{id}")

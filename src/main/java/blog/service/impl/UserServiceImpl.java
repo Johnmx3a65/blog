@@ -1,6 +1,6 @@
 package blog.service.impl;
 
-import blog.service.MailSender;
+import blog.service.MailSenderService;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -9,8 +9,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.util.StringUtils;
-import org.springframework.web.bind.annotation.PathVariable;
 import blog.model.UserModel;
 import blog.model.UserEditModel;
 import blog.entity.Article;
@@ -23,10 +21,13 @@ import blog.service.UserService;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.Base64;
 import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
+
+import static blog.util.StringUtils.*;
 
 @Service
 @AllArgsConstructor
@@ -36,20 +37,20 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
-    private final MailSender mailSender;
+    private final MailSenderService mailSenderService;
 
     @Override
     public String loadRegisterView(Model model){
-        model.addAttribute("view", "user/register");
+        model.addAttribute(VIEW, USER_REGISTER);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
     public String registerUser(UserModel userModel) throws IOException {
 
         if(!userModel.getPassword().equals(userModel.getConfirmPassword())){
-            return "redirect:/register";
+            return REDIRECT_REGISTER;
         }
 
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -66,59 +67,62 @@ public class UserServiceImpl implements UserService {
             user.setProfilePicture(imageFile);
         }
 
-        Role userRole = this.roleRepository.findByName("ROLE_USER");
+        Role userRole = this.roleRepository.findByName(ROLE_USER);
         user.setRoles(Collections.singletonList(userRole));
 
         this.userRepository.saveAndFlush(user);
 
-        return "redirect:/login";
+        return REDIRECT_LOGIN;
     }
 
     @Override
     public String loadLoginView(Model model){
-        model.addAttribute("view", "user/login");
-
-        return "base-layout";
+        model.addAttribute(VIEW, USER_LOGIN);
+        return BASE_LAYOUT;
     }
 
     @Override
     public String loadInputEmailView(Model model){
-
-        model.addAttribute("view", "user/forgot-password-input-email");
-
-        return "base-layout";
+        model.addAttribute(VIEW, USER_FORGOT_PASSWORD_INPUT_EMAIL);
+        return BASE_LAYOUT;
     }
 
     @Override
     public String sendMail(UserModel userModel){
         if(userModel.getEmail().isEmpty()){
-            return "redirect:/forgot-password-input-email";
+            return USER_FORGOT_PASSWORD_INPUT_EMAIL;
         }
 
-        if(this.userRepository.findByEmail(userModel.getEmail()) == null){
-            return "redirect:/forgot-password-input-email";
-        }
         User user = this.userRepository.findByEmail(userModel.getEmail());
+
+        if(user == null){
+            return USER_FORGOT_PASSWORD_INPUT_EMAIL;
+        }
 
         user.setConfirmCode(UUID.randomUUID().toString());
 
-        String message = String.format("Hello, %s!\n" +
-                "If you tried to change your password, please go to the next link: http://localhost:8080/user/forgot-password/%s . Your confirm code: %s\n" +
-                "If it's not you, please ignore this message!", user.getFullName(), user.getId().toString(), user.getConfirmCode());
+        String message = MessageFormat.format(
+            CONFIRMATION_CODE_MAIL,
+            user.getFullName(),
+            user.getId(),
+            user.getConfirmCode()
+        );
 
-        mailSender.send(user.getEmail(), "Change Password", message);
+        mailSenderService.send(user.getEmail(), CHANGE_PASSWORD, message);
         this.userRepository.saveAndFlush(user);
 
-        return "redirect:/send-mail";
+        return REDIRECT_SEND_MAIL;
     }
 
     @Override
     public String logoutFromPage(HttpServletRequest request, HttpServletResponse response){
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+
         if(auth != null){
             new SecurityContextLogoutHandler().logout(request,response,auth);
         }
-        return "redirect:/login?logout";
+
+        return MessageFormat.format(REDIRECT_LOGIN_WITH_QUERY, LOGOUT);
     }
 
     @Override
@@ -139,41 +143,37 @@ public class UserServiceImpl implements UserService {
             }
         }
 
-        model.addAttribute("articles", articles);
-        model.addAttribute("user", user);
-        model.addAttribute("view", "user/profile");
+        model.addAttribute(ARTICLES, articles);
+        model.addAttribute(USER, user);
+        model.addAttribute(VIEW, USER_PROFILE);
 
-        return "base-layout";
-    }
-
-    public String loadSendPasswordForgotMailPageView(Model model){
-
-        model.addAttribute("view", "user/send-mail");
-
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
-    public String loadForgotPasswordView(@PathVariable Integer id, Model model){
+    public String loadSendPasswordForgotMailPageView(Model model){
+        model.addAttribute(VIEW, USER_SEND_MAIL);
+        return BASE_LAYOUT;
+    }
 
+    @Override
+    public String loadForgotPasswordView(Integer id, Model model){
         if(!this.userRepository.existsById(id)){
-            return "redirect:/login";
+            return REDIRECT_LOGIN;
         }
 
         User user = this.userRepository.getReferenceById(id);
 
-        model.addAttribute("user", user);
-        model.addAttribute("view", "/user/forgot-password");
+        model.addAttribute(USER, user);
+        model.addAttribute(VIEW, USER_FORGOT_PASSWORD);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
-
     @Override
-    public String changeForgotPassword(@PathVariable Integer id, HttpServletRequest request, UserEditModel userEditModel){
-
+    public String changeForgotPassword(Integer id, HttpServletRequest request, UserEditModel userEditModel){
         if(!this.userRepository.existsById(id)){
-            return "redirect:/login";
+            return REDIRECT_LOGIN;
         }
 
         User user = this.userRepository.getReferenceById(id);
@@ -181,18 +181,16 @@ public class UserServiceImpl implements UserService {
         if(request.getParameter("sendAgain") != null){
             user.setConfirmCode(UUID.randomUUID().toString());
 
-            String message = String.format("Hello, %s!\n" +
-                    "Your confirm code: %s\n" +
-                    "If it's not you, please ignore this message!", user.getFullName(), user.getConfirmCode());
+            String message = MessageFormat.format(NEW_CONFIRMATION_CODE_MAIL, user.getFullName(), user.getConfirmCode());
 
-            mailSender.send(user.getEmail(), "Change Password", message);
+            mailSenderService.send(user.getEmail(), CHANGE_PASSWORD, message);
             this.userRepository.saveAndFlush(user);
 
-            return "redirect:/user/forgot-password/" + user.getId();
+            return MessageFormat.format(REDIRECT_USER_FORGOT_PASSWORD_ID, user.getId());
         }
 
         if(!userEditModel.getPassword().equals(userEditModel.getConfirmPassword()) || !userEditModel.getConfirmCode().equals(user.getConfirmCode())){
-            return "redirect:/user/forgot-password/" + user.getId();
+            return MessageFormat.format(REDIRECT_USER_FORGOT_PASSWORD_ID, user.getId());
         }
 
         BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
@@ -203,50 +201,49 @@ public class UserServiceImpl implements UserService {
 
         this.userRepository.saveAndFlush(user);
 
-        return "redirect:/login";
+        return REDIRECT_LOGIN;
     }
 
-
     @Override
-    public String loadEditView(@PathVariable Integer id, Model model){
+    public String loadEditView(Integer id, Model model){
 
         if(!this.userRepository.existsById(id)){
-            return "redirect:/profile";
+            return REDIRECT_PROFILE;
         }
 
         User user = this.userRepository.getReferenceById(id);
 
-        if(!isMyProfile(user)){
-            return "redirect:/profile";
+        if(isNotMyProfile(user)){
+            return REDIRECT_PROFILE;
         }
 
-        model.addAttribute("user", user);
-        model.addAttribute("view", "/user/edit");
+        model.addAttribute(USER, user);
+        model.addAttribute(VIEW, USER_EDIT);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
-    public String editUser(@PathVariable Integer id, UserEditModel userEditModel) throws IOException {
+    public String editUser(Integer id, UserEditModel userEditModel) throws IOException {
 
         if(!this.userRepository.existsById(id)){
-            return "redirect:/profile";
+            return REDIRECT_PROFILE;
         }
 
         User user = this.userRepository.getReferenceById(id);
 
-        if(!isMyProfile(user)){
-            return "redirect:/profile";
+        if(isNotMyProfile(user)){
+            return REDIRECT_PROFILE;
         }
 
-        if(!StringUtils.isEmpty(userEditModel.getPassword())
-                && !StringUtils.isEmpty(userEditModel.getConfirmPassword())){
-            if(userEditModel.getPassword().equals(userEditModel.getConfirmPassword())){
-                BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String password = userEditModel.getPassword();
+        String confirmPassword = userEditModel.getConfirmPassword();
 
-                user.setPassword(bCryptPasswordEncoder.encode(userEditModel.getPassword()));
-            }
+        if(!(password.isEmpty() || confirmPassword.isEmpty()) && password.equals(confirmPassword)){
+            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+            user.setPassword(bCryptPasswordEncoder.encode(password));
         }
+
 
         if(!userEditModel.getProfilePicture().isEmpty()){
             byte[] imageFile = userEditModel.getProfilePicture().getBytes();
@@ -256,15 +253,13 @@ public class UserServiceImpl implements UserService {
         user.setFullName(userEditModel.getFullName());
         user.setEmail(userEditModel.getEmail());
 
-
         this.userRepository.saveAndFlush(user);
 
-        return "redirect:/profile";
+        return REDIRECT_PROFILE;
     }
 
-    private boolean isMyProfile(User user){
+    private boolean isNotMyProfile(User user){
         UserDetails currentUser = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-        return user.getEmail().equals(currentUser.getUsername());
+        return !user.getEmail().equals(currentUser.getUsername());
     }
 }

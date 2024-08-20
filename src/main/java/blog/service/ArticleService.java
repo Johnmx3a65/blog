@@ -12,14 +12,13 @@ public interface ArticleService {
 
     String createArticle(ArticleModel articleModel) throws IOException;
 
-    String loadArticleDetailsView(Model model, @PathVariable Integer id);
+    String loadArticleDetailsView(Model model, Integer id);
 
-    String loadArticleEditView(@PathVariable Integer id, Model model);
+    String loadArticleEditView(Integer id, Model model);
 
-    String editArticle(@PathVariable Integer id, ArticleModel articleModel) throws IOException;
+    String editArticle(Integer id, ArticleModel articleModel) throws IOException;
 
-    String loadArticleDeleteView(Model model, @PathVariable Integer id);
+    String loadArticleDeleteView(Model model, Integer id);
 
     String deleteArticle(@PathVariable Integer id);
-
 }

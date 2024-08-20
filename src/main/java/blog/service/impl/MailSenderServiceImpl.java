@@ -5,11 +5,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.stereotype.Service;
-import blog.service.MailSender;
+import blog.service.MailSenderService;
 
 @Service
 @RequiredArgsConstructor
-public class MailSenderImpl implements MailSender {
+public class MailSenderServiceImpl implements MailSenderService {
     @Value("${spring.mail.username}")
     private String username;
 

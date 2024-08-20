@@ -1,7 +1,6 @@
 package blog.service;
 
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import blog.model.UserModel;
 import blog.model.UserEditModel;
 
@@ -27,11 +26,11 @@ public interface UserService {
 
     String loadSendPasswordForgotMailPageView(Model model);
 
-    String loadForgotPasswordView(@PathVariable Integer id, Model model);
+    String loadForgotPasswordView(Integer id, Model model);
 
-    String changeForgotPassword(@PathVariable Integer id, HttpServletRequest request, UserEditModel userEditModel);
+    String changeForgotPassword(Integer id, HttpServletRequest request, UserEditModel userEditModel);
 
-    String loadEditView(@PathVariable Integer id, Model model);
+    String loadEditView(Integer id, Model model);
 
-    String editUser(@PathVariable Integer id, UserEditModel userEditModel) throws IOException;
+    String editUser(Integer id, UserEditModel userEditModel) throws IOException;
 }

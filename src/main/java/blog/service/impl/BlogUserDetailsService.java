@@ -10,12 +10,15 @@ import org.springframework.stereotype.Service;
 import blog.entity.User;
 import blog.repository.UserRepository;
 
+import java.text.MessageFormat;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static blog.util.StringUtils.INVALID_USERNAME;
+
 @Service("blogUserDetailsService")
 @AllArgsConstructor
-public class BlogUserDetailsService implements UserDetailsService{
+public class BlogUserDetailsService implements UserDetailsService {
 
     private final UserRepository userRepository;
 
@@ -24,8 +27,9 @@ public class BlogUserDetailsService implements UserDetailsService{
         User user = userRepository.findByEmail(email);
 
         if (user == null) {
-            throw new UsernameNotFoundException("Invalid User");
+            throw new UsernameNotFoundException(MessageFormat.format(INVALID_USERNAME, email));
         }
+
         else {
             Set<GrantedAuthority> grantedAuthorities = user.getRoles()
                     .stream()

@@ -6,7 +6,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import blog.model.ArticleModel;
 import blog.entity.Article;
 import blog.entity.Category;
@@ -19,9 +18,24 @@ import blog.repository.UserRepository;
 import blog.service.ArticleService;
 
 import java.io.IOException;
+import java.text.MessageFormat;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static blog.util.StringUtils.ARTICLE;
+import static blog.util.StringUtils.ARTICLE_CREATE;
+import static blog.util.StringUtils.ARTICLE_DELETE;
+import static blog.util.StringUtils.ARTICLE_DETAILS;
+import static blog.util.StringUtils.ARTICLE_EDIT;
+import static blog.util.StringUtils.BASE_LAYOUT;
+import static blog.util.StringUtils.CATEGORIES;
+import static blog.util.StringUtils.INVALID_CATEGORY_ID;
+import static blog.util.StringUtils.REDIRECT_ARTICLES_ID;
+import static blog.util.StringUtils.REDIRECT_HOME;
+import static blog.util.StringUtils.TAGS;
+import static blog.util.StringUtils.USER;
+import static blog.util.StringUtils.VIEW;
 
 @Service
 @AllArgsConstructor
@@ -39,19 +53,21 @@ public class ArticleServiceImpl implements ArticleService {
     public String loadCreateArticleView(Model model){
         List<Category> categories = this.categoryRepository.findAll();
 
-        model.addAttribute("categories", categories);
-        model.addAttribute("view", "article/create");
+        model.addAttribute(CATEGORIES, categories);
+        model.addAttribute(VIEW, ARTICLE_CREATE);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
     public String createArticle(ArticleModel articleModel) throws IOException {
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         User userEntity = this.userRepository.findByEmail(user.getUsername());
-        Category category = this.categoryRepository.getOne(articleModel
-                .getCategoryId());
+        Category category = this.categoryRepository
+                .findById(articleModel.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                    MessageFormat.format(INVALID_CATEGORY_ID, articleModel.getCategoryId())
+                ));
         List<Tag> tags = this.findTagsFromString(articleModel.getTagString());
 
         Article articleEntity = Article
@@ -70,43 +86,41 @@ public class ArticleServiceImpl implements ArticleService {
 
         this.articleRepository.saveAndFlush(articleEntity);
 
-        return "redirect:/";
+        return REDIRECT_HOME;
     }
 
     @Override
-    public String loadArticleDetailsView(Model model, @PathVariable Integer id){
+    public String loadArticleDetailsView(Model model, Integer id){
         if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
+            return REDIRECT_HOME;
         }
 
-        if(!(SecurityContextHolder.getContext().getAuthentication()
-                instanceof AnonymousAuthenticationToken)){
-            UserDetails principal = (UserDetails) SecurityContextHolder.getContext()
-                    .getAuthentication().getPrincipal();
+        if(!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)){
+            UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
             User entityUser = this.userRepository.findByEmail(principal.getUsername());
 
-            model.addAttribute("user", entityUser);
+            model.addAttribute(USER, entityUser);
         }
 
         Article article = this.articleRepository.getReferenceById(id);
 
-        model.addAttribute("article", article);
-        model.addAttribute("view", "article/details");
+        model.addAttribute(ARTICLE, article);
+        model.addAttribute(VIEW, ARTICLE_DETAILS);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
-    public String loadArticleEditView(@PathVariable Integer id, Model model){
+    public String loadArticleEditView(Integer id, Model model){
         if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
+            return REDIRECT_HOME;
         }
 
         Article article = this.articleRepository.getReferenceById(id);
 
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
+        if (neitherAuthorOrAdmin(article)){
+            return MessageFormat.format(REDIRECT_ARTICLES_ID, id);
         }
 
         List<Category> categories = this.categoryRepository.findAll();
@@ -115,27 +129,31 @@ public class ArticleServiceImpl implements ArticleService {
                 .map(Tag::getName)
                 .collect(Collectors.joining(", "));
 
-        model.addAttribute("view", "article/edit");
-        model.addAttribute("article", article);
-        model.addAttribute("categories", categories);
-        model.addAttribute("tags", tagString);
+        model.addAttribute(VIEW, ARTICLE_EDIT);
+        model.addAttribute(ARTICLE, article);
+        model.addAttribute(CATEGORIES, categories);
+        model.addAttribute(TAGS, tagString);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
-    public String editArticle(@PathVariable Integer id, ArticleModel articleModel) throws IOException {
+    public String editArticle(Integer id, ArticleModel articleModel) throws IOException {
         if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
+            return REDIRECT_HOME;
         }
 
         Article article = this.articleRepository.getReferenceById(id);
 
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
+        if (neitherAuthorOrAdmin(article)){
+            return MessageFormat.format(REDIRECT_ARTICLES_ID, id);
         }
 
-        Category category = this.categoryRepository.getOne(articleModel.getCategoryId());
+        Category category = this.categoryRepository
+                .findById(articleModel.getCategoryId())
+                .orElseThrow(() -> new IllegalArgumentException(
+                    MessageFormat.format(INVALID_CATEGORY_ID, articleModel.getCategoryId())
+                ));
         List<Tag> tags = this.findTagsFromString(articleModel.getTagString());
 
         if(articleModel.getArticlePicture() != null){
@@ -150,40 +168,42 @@ public class ArticleServiceImpl implements ArticleService {
 
         this.articleRepository.saveAndFlush(article);
 
-        return "redirect:/article/" + article.getId().toString();
+        return MessageFormat.format(REDIRECT_ARTICLES_ID, article.getId());
     }
 
     @Override
-    public String loadArticleDeleteView(Model model, @PathVariable Integer id){
+    public String loadArticleDeleteView(Model model, Integer id){
         if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
+            return REDIRECT_HOME;
         }
 
         Article article = this.articleRepository.getReferenceById(id);
 
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
+        if (neitherAuthorOrAdmin(article)){
+            return MessageFormat.format(REDIRECT_ARTICLES_ID, id);
         }
 
-        model.addAttribute("article", article);
-        model.addAttribute("view", "article/delete");
+        model.addAttribute(ARTICLE, article);
+        model.addAttribute(VIEW, ARTICLE_DELETE);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
-    public String deleteArticle(@PathVariable Integer id){
+    public String deleteArticle(Integer id){
         if(!this.articleRepository.existsById(id)){
-            return "redirect:/";
+            return REDIRECT_HOME;
         }
 
         Article article = this.articleRepository.getReferenceById(id);
-        if (!isUserAuthorOrAdmin(article)){
-            return "redirect:/article/" + id;
+
+        if (neitherAuthorOrAdmin(article)){
+            return MessageFormat.format(REDIRECT_ARTICLES_ID, id);
         }
+
         this.articleRepository.delete(article);
 
-        return "redirect:/";
+        return REDIRECT_HOME;
     }
 
     private List<Tag> findTagsFromString(String tagString){
@@ -204,12 +224,11 @@ public class ArticleServiceImpl implements ArticleService {
         return tags;
     }
 
-    private boolean isUserAuthorOrAdmin(Article article){
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext()
-                .getAuthentication().getPrincipal();
+    private boolean neitherAuthorOrAdmin(Article article){
+        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         User userEntity = this.userRepository.findByEmail(user.getUsername());
 
-        return userEntity.isAdmin() || userEntity.isAuthor(article);
+        return !(userEntity.isAdmin() || userEntity.isAuthor(article));
     }
 }

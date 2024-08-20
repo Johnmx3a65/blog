@@ -3,7 +3,6 @@ package blog.service.impl;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import blog.entity.Article;
 import blog.entity.Category;
 import blog.repository.CategoryRepository;
@@ -11,6 +10,16 @@ import blog.service.HomeService;
 
 import java.util.Base64;
 import java.util.List;
+
+import static blog.util.StringUtils.ARTICLES;
+import static blog.util.StringUtils.BASE_LAYOUT;
+import static blog.util.StringUtils.CATEGORIES;
+import static blog.util.StringUtils.CATEGORY;
+import static blog.util.StringUtils.ERROR_403;
+import static blog.util.StringUtils.HOME_INDEX;
+import static blog.util.StringUtils.HOME_LIST_ARTICLES;
+import static blog.util.StringUtils.REDIRECT_HOME;
+import static blog.util.StringUtils.VIEW;
 
 @Service
 @AllArgsConstructor
@@ -22,16 +31,16 @@ public class HomeServiceImpl implements HomeService {
     public String loadIndexView(Model model) {
         List<Category> categories = this.categoryRepository.findAll();
 
-        model.addAttribute("view", "home/index");
-        model.addAttribute("categories", categories);
+        model.addAttribute(VIEW, HOME_INDEX);
+        model.addAttribute(CATEGORIES, categories);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
-    public String loadListArticlesView(Model model, @PathVariable Integer id) {
+    public String loadListArticlesView(Model model, Integer id) {
         if(!this.categoryRepository.existsById(id)){
-            return "redirect:/";
+            return REDIRECT_HOME;
         }
 
         Category category = this.categoryRepository.getReferenceById(id);
@@ -43,17 +52,16 @@ public class HomeServiceImpl implements HomeService {
             }
         }
 
-        model.addAttribute("articles", articles);
-        model.addAttribute("category", category);
-        model.addAttribute("view", "home/list-articles");
+        model.addAttribute(ARTICLES, articles);
+        model.addAttribute(CATEGORY, category);
+        model.addAttribute(VIEW, HOME_LIST_ARTICLES);
 
-        return "base-layout";
+        return BASE_LAYOUT;
     }
 
     @Override
     public String loadError403View(Model model){
-        model.addAttribute("view", "error/403");
-
-        return "base-layout";
+        model.addAttribute(VIEW, ERROR_403);
+        return BASE_LAYOUT;
     }
 }

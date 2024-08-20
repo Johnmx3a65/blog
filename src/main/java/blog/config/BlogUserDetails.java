@@ -1,5 +1,6 @@
 package blog.config;
 
+import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,19 +12,16 @@ import java.util.List;
 
 public class BlogUserDetails extends User implements UserDetails {
 
-    private User user;
+    @Getter
+    private final User user;
 
-    private List<String> roles;
+    private final List<String> roles;
 
     public BlogUserDetails(User user, List<String> roles) {
         super(user.getEmail(), user.getPassword());
 
         this.roles = roles;
         this.user = user;
-    }
-
-    public User getUser() {
-        return this.user;
     }
 
     @Override

@@ -1,7 +1,6 @@
 package blog.service;
 
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import blog.model.CategoryModel;
 
 public interface CategoryService {
@@ -12,11 +11,11 @@ public interface CategoryService {
 
     String createCategory(CategoryModel categoryModel);
 
-    String loadCategoryEditView(Model model, @PathVariable Integer id);
+    String loadCategoryEditView(Model model, Integer id);
 
-    String editCategory(@PathVariable Integer id, CategoryModel categoryModel);
+    String editCategory(Integer id, CategoryModel categoryModel);
 
-    String loadCategoryDeleteView(Model model, @PathVariable Integer id);
+    String loadCategoryDeleteView(Model model, Integer id);
 
-    String deleteCategory(@PathVariable Integer id);
+    String deleteCategory(Integer id);
 }
