@@ -79,7 +79,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .tags(tags)
                 .build();
 
-        if(articleModel.getArticlePicture() != null){
+        if(!articleModel.getArticlePicture().isEmpty()){
             byte[] imageFile = articleModel.getArticlePicture().getBytes();
             articleEntity.setArticlePicture(imageFile);
         }
@@ -156,7 +156,7 @@ public class ArticleServiceImpl implements ArticleService {
                 ));
         List<Tag> tags = this.findTagsFromString(articleModel.getTagString());
 
-        if(articleModel.getArticlePicture() != null){
+        if(!articleModel.getArticlePicture().isEmpty()){
             byte[] imageFile = articleModel.getArticlePicture().getBytes();
             article.setArticlePicture(imageFile);
         }
