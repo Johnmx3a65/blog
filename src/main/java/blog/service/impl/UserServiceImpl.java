@@ -27,29 +27,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.UUID;
 
-import static blog.util.StringUtils.ARTICLES;
-import static blog.util.StringUtils.BASE_LAYOUT;
-import static blog.util.StringUtils.CHANGE_PASSWORD;
-import static blog.util.StringUtils.CONFIRMATION_CODE_MAIL;
-import static blog.util.StringUtils.LOGOUT;
-import static blog.util.StringUtils.NEW_CONFIRMATION_CODE_MAIL;
-import static blog.util.StringUtils.REDIRECT_LOGIN;
-import static blog.util.StringUtils.REDIRECT_LOGIN_WITH_QUERY;
-import static blog.util.StringUtils.REDIRECT_PROFILE;
-import static blog.util.StringUtils.REDIRECT_REGISTER;
-import static blog.util.StringUtils.REDIRECT_SEND_MAIL;
-import static blog.util.StringUtils.REDIRECT_USER_FORGOT_PASSWORD_ID;
-import static blog.util.StringUtils.ROLE_USER;
-import static blog.util.StringUtils.SEND_AGAIN;
-import static blog.util.StringUtils.USER;
-import static blog.util.StringUtils.USER_EDIT;
-import static blog.util.StringUtils.USER_FORGOT_PASSWORD;
-import static blog.util.StringUtils.USER_FORGOT_PASSWORD_INPUT_EMAIL;
-import static blog.util.StringUtils.USER_LOGIN;
-import static blog.util.StringUtils.USER_PROFILE;
-import static blog.util.StringUtils.USER_REGISTER;
-import static blog.util.StringUtils.USER_SEND_MAIL;
-import static blog.util.StringUtils.VIEW;
+import static blog.util.StringUtils.*;
 
 @Service
 @AllArgsConstructor
@@ -172,7 +150,9 @@ public class UserServiceImpl implements UserService {
             return REDIRECT_LOGIN;
         }
 
-        User user = this.userRepository.getReferenceById(id);
+        User user = this.userRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_USER_ID, id))
+        );
 
         model.addAttribute(USER, user);
         model.addAttribute(VIEW, USER_FORGOT_PASSWORD);
@@ -186,7 +166,9 @@ public class UserServiceImpl implements UserService {
             return REDIRECT_LOGIN;
         }
 
-        User user = this.userRepository.getReferenceById(id);
+        User user = this.userRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_USER_ID, id))
+        );
 
         if(request.getParameter(SEND_AGAIN) != null){
             user.setConfirmCode(UUID.randomUUID().toString());
@@ -222,7 +204,9 @@ public class UserServiceImpl implements UserService {
             return REDIRECT_PROFILE;
         }
 
-        User user = this.userRepository.getReferenceById(id);
+        User user = this.userRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_USER_ID, id))
+        );
 
         if(isNotMyProfile(user)){
             return REDIRECT_PROFILE;
@@ -240,7 +224,9 @@ public class UserServiceImpl implements UserService {
             return REDIRECT_PROFILE;
         }
 
-        User user = this.userRepository.getReferenceById(id);
+        User user = this.userRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_USER_ID, id))
+        );
 
         if(isNotMyProfile(user)){
             return REDIRECT_PROFILE;

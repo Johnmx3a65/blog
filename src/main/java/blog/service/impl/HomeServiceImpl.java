@@ -8,17 +8,10 @@ import blog.entity.Category;
 import blog.repository.CategoryRepository;
 import blog.service.HomeService;
 
+import java.text.MessageFormat;
 import java.util.List;
 
-import static blog.util.StringUtils.ARTICLES;
-import static blog.util.StringUtils.BASE_LAYOUT;
-import static blog.util.StringUtils.CATEGORIES;
-import static blog.util.StringUtils.CATEGORY;
-import static blog.util.StringUtils.ERROR_403;
-import static blog.util.StringUtils.HOME_INDEX;
-import static blog.util.StringUtils.HOME_LIST_ARTICLES;
-import static blog.util.StringUtils.REDIRECT_HOME;
-import static blog.util.StringUtils.VIEW;
+import static blog.util.StringUtils.*;
 
 @Service
 @AllArgsConstructor
@@ -42,7 +35,9 @@ public class HomeServiceImpl implements HomeService {
             return REDIRECT_HOME;
         }
 
-        Category category = this.categoryRepository.getReferenceById(id);
+        Category category = this.categoryRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_CATEGORY_ID, id))
+        );
         List<Article> articles = category.getArticles();
 
         model.addAttribute(ARTICLES, articles);

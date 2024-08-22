@@ -24,19 +24,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static blog.util.StringUtils.ARTICLE;
-import static blog.util.StringUtils.ARTICLE_CREATE;
-import static blog.util.StringUtils.ARTICLE_DELETE;
-import static blog.util.StringUtils.ARTICLE_DETAILS;
-import static blog.util.StringUtils.ARTICLE_EDIT;
-import static blog.util.StringUtils.BASE_LAYOUT;
-import static blog.util.StringUtils.CATEGORIES;
-import static blog.util.StringUtils.INVALID_CATEGORY_ID;
-import static blog.util.StringUtils.REDIRECT_ARTICLES_ID;
-import static blog.util.StringUtils.REDIRECT_HOME;
-import static blog.util.StringUtils.TAGS;
-import static blog.util.StringUtils.USER;
-import static blog.util.StringUtils.VIEW;
+import static blog.util.StringUtils.*;
 
 @Service
 @AllArgsConstructor
@@ -106,7 +94,9 @@ public class ArticleServiceImpl implements ArticleService {
             model.addAttribute(USER, entityUser);
         }
 
-        Article article = this.articleRepository.getReferenceById(id);
+        Article article = this.articleRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_ARTICLE_ID, id))
+        );
 
         model.addAttribute(ARTICLE, article);
         model.addAttribute(VIEW, ARTICLE_DETAILS);
@@ -120,7 +110,9 @@ public class ArticleServiceImpl implements ArticleService {
             return REDIRECT_HOME;
         }
 
-        Article article = this.articleRepository.getReferenceById(id);
+        Article article = this.articleRepository.findById(id).orElseThrow(
+                () -> new IllegalArgumentException(MessageFormat.format(INVALID_ARTICLE_ID, id))
+        );
 
         if (neitherAuthorOrAdmin(article)){
             return MessageFormat.format(REDIRECT_ARTICLES_ID, id);
@@ -146,7 +138,9 @@ public class ArticleServiceImpl implements ArticleService {
             return REDIRECT_HOME;
         }
 
-        Article article = this.articleRepository.getReferenceById(id);
+        Article article = this.articleRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_ARTICLE_ID, id))
+        );
 
         if (neitherAuthorOrAdmin(article)){
             return MessageFormat.format(REDIRECT_ARTICLES_ID, id);
@@ -182,7 +176,9 @@ public class ArticleServiceImpl implements ArticleService {
             return REDIRECT_HOME;
         }
 
-        Article article = this.articleRepository.getReferenceById(id);
+        Article article = this.articleRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_ARTICLE_ID, id))
+        );
 
         if (neitherAuthorOrAdmin(article)){
             return MessageFormat.format(REDIRECT_ARTICLES_ID, id);
@@ -200,7 +196,9 @@ public class ArticleServiceImpl implements ArticleService {
             return REDIRECT_HOME;
         }
 
-        Article article = this.articleRepository.getReferenceById(id);
+        Article article = this.articleRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_ARTICLE_ID, id))
+        );
 
         if (neitherAuthorOrAdmin(article)){
             return MessageFormat.format(REDIRECT_ARTICLES_ID, id);

@@ -9,20 +9,12 @@ import blog.repository.ArticleRepository;
 import blog.repository.CategoryRepository;
 import blog.service.CategoryService;
 
+import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static blog.util.StringUtils.ADMIN_CATEGORIES_CREATE;
-import static blog.util.StringUtils.ADMIN_CATEGORIES_DELETE;
-import static blog.util.StringUtils.ADMIN_CATEGORIES_EDIT;
-import static blog.util.StringUtils.ADMIN_CATEGORIES_LIST;
-import static blog.util.StringUtils.BASE_LAYOUT;
-import static blog.util.StringUtils.CATEGORIES;
-import static blog.util.StringUtils.CATEGORY;
-import static blog.util.StringUtils.REDIRECT_ADMIN_CATEGORIES;
-import static blog.util.StringUtils.REDIRECT_ADMIN_CATEGORIES_CREATE;
-import static blog.util.StringUtils.VIEW;
+import static blog.util.StringUtils.*;
 
 @Service
 @AllArgsConstructor
@@ -68,7 +60,9 @@ public class CategoryServiceImpl implements CategoryService {
             return REDIRECT_ADMIN_CATEGORIES;
         }
 
-        Category category = this.categoryRepository.getReferenceById(id);
+        Category category = this.categoryRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_CATEGORY_ID, id))
+        );
 
         model.addAttribute(CATEGORY, category);
         model.addAttribute(VIEW, ADMIN_CATEGORIES_EDIT);
@@ -82,7 +76,9 @@ public class CategoryServiceImpl implements CategoryService {
             return REDIRECT_ADMIN_CATEGORIES;
         }
 
-        Category category = this.categoryRepository.getReferenceById(id);
+        Category category = this.categoryRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_CATEGORY_ID, id))
+        );
         category.setName(categoryModel.getName());
 
         this.categoryRepository.saveAndFlush(category);
@@ -96,7 +92,9 @@ public class CategoryServiceImpl implements CategoryService {
             return REDIRECT_ADMIN_CATEGORIES;
         }
 
-        Category category = this.categoryRepository.getReferenceById(id);
+        Category category = this.categoryRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_CATEGORY_ID, id))
+        );
 
         model.addAttribute(CATEGORY, category);
         model.addAttribute(VIEW, ADMIN_CATEGORIES_DELETE);
@@ -110,7 +108,9 @@ public class CategoryServiceImpl implements CategoryService {
             return REDIRECT_ADMIN_CATEGORIES;
         }
 
-        Category category = this.categoryRepository.getReferenceById(id);
+        Category category = this.categoryRepository.findById(id).orElseThrow(
+            () -> new IllegalArgumentException(MessageFormat.format(INVALID_CATEGORY_ID, id))
+        );
 
         this.articleRepository.deleteAll(category.getArticles());
         this.categoryRepository.delete(category);

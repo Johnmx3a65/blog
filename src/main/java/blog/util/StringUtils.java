@@ -63,6 +63,9 @@ public class StringUtils {
 
     public static final String INVALID_CATEGORY_ID = "Invalid category id: {0}";
     public static final String INVALID_USERNAME = "Invalid username: {0}";
+    public static final String INVALID_USER_ID = "Invalid user id: {0}";
+    public static final String INVALID_ROLE_ID = "Invalid role id: {0}";
+    public static final String INVALID_ARTICLE_ID = "Invalid article id: {0}";
 
     public static final String CHANGE_PASSWORD = "Change Password";
 
