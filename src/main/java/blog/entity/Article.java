@@ -72,7 +72,7 @@ public class Article {
         return category;
     }
 
-    @Column(name = "picture")
+    @Column(name = "picture", columnDefinition = "text")
     public String getPicture() {
         return picture;
     }

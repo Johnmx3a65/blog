@@ -80,7 +80,7 @@ public class User {
         return articles;
     }
 
-    @Column(name = "picture")
+    @Column(name = "picture", columnDefinition = "text")
     public String getPicture() {
         return picture;
     }
