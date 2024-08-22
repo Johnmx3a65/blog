@@ -19,5 +19,5 @@ public class ArticleModel {
 
     private String tagString;
 
-    private MultipartFile articlePicture;
+    private MultipartFile picture;
 }

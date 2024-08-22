@@ -22,5 +22,5 @@ public class UserModel {
     @NotNull
     private String confirmPassword;
 
-    private MultipartFile profilePicture;
+    private MultipartFile picture;
 }

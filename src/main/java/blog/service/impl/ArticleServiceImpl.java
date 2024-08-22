@@ -19,6 +19,7 @@ import blog.service.ArticleService;
 
 import java.io.IOException;
 import java.text.MessageFormat;
+import java.util.Base64;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -68,6 +69,7 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new IllegalArgumentException(
                     MessageFormat.format(INVALID_CATEGORY_ID, articleModel.getCategoryId())
                 ));
+
         List<Tag> tags = this.findTagsFromString(articleModel.getTagString());
 
         Article articleEntity = Article
@@ -79,9 +81,10 @@ public class ArticleServiceImpl implements ArticleService {
                 .tags(tags)
                 .build();
 
-        if(!articleModel.getArticlePicture().isEmpty()){
-            byte[] imageFile = articleModel.getArticlePicture().getBytes();
-            articleEntity.setArticlePicture(imageFile);
+        if(!articleModel.getPicture().isEmpty()){
+            byte[] pictureBytes = articleModel.getPicture().getBytes();
+            String pictureBase64 = Base64.getEncoder().encodeToString(pictureBytes);
+            articleEntity.setPicture(pictureBase64);
         }
 
         this.articleRepository.saveAndFlush(articleEntity);
@@ -154,11 +157,13 @@ public class ArticleServiceImpl implements ArticleService {
                 .orElseThrow(() -> new IllegalArgumentException(
                     MessageFormat.format(INVALID_CATEGORY_ID, articleModel.getCategoryId())
                 ));
+
         List<Tag> tags = this.findTagsFromString(articleModel.getTagString());
 
-        if(!articleModel.getArticlePicture().isEmpty()){
-            byte[] imageFile = articleModel.getArticlePicture().getBytes();
-            article.setArticlePicture(imageFile);
+        if(!articleModel.getPicture().isEmpty()){
+            byte[] pictureBytes = articleModel.getPicture().getBytes();
+            String pictureBase64 = Base64.getEncoder().encodeToString(pictureBytes);
+            article.setPicture(pictureBase64);
         }
 
         article.setTags(tags);

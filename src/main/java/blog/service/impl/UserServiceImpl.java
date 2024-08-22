@@ -82,9 +82,10 @@ public class UserServiceImpl implements UserService {
                 .password(bCryptPasswordEncoder.encode(userModel.getPassword()))
                 .build();
 
-        if(userModel.getProfilePicture() != null){
-            byte[] imageFile = userModel.getProfilePicture().getBytes();
-            user.setProfilePicture(imageFile);
+        if(!userModel.getPicture().isEmpty()){
+            byte[] pictureBytes = userModel.getPicture().getBytes();
+            String pictureBase64 = Base64.getEncoder().encodeToString(pictureBytes);
+            user.setPicture(pictureBase64);
         }
 
         Role userRole = this.roleRepository.findByName(ROLE_USER);
@@ -150,19 +151,7 @@ public class UserServiceImpl implements UserService {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
         User user = this.userRepository.findByEmail(principal.getUsername());
-
-        if(user.getProfilePicture() != null){
-            user.setProfilePictureBase64(Base64.getEncoder().encodeToString(user.getProfilePicture()));
-        }
-
         List<Article> articles = user.getArticles();
-
-        for (Article article : articles){
-            if(article.getArticlePicture() != null){
-                String articlePictureBase64 = Base64.getEncoder().encodeToString(article.getArticlePicture());
-                article.setArticlePictureBase64(articlePictureBase64);
-            }
-        }
 
         model.addAttribute(ARTICLES, articles);
         model.addAttribute(USER, user);
@@ -265,9 +254,10 @@ public class UserServiceImpl implements UserService {
             user.setPassword(bCryptPasswordEncoder.encode(password));
         }
 
-        if(!userEditModel.getProfilePicture().isEmpty()){
-            byte[] imageFile = userEditModel.getProfilePicture().getBytes();
-            user.setProfilePicture(imageFile);
+        if(!userEditModel.getPicture().isEmpty()){
+            byte[] pictureBytes = userEditModel.getPicture().getBytes();
+            String pictureBase64 = Base64.getEncoder().encodeToString(pictureBytes);
+            user.setPicture(pictureBase64);
         }
 
         user.setFullName(userEditModel.getFullName());

@@ -39,9 +39,7 @@ public class User {
 
     private List<Article> articles;
 
-    private byte[] profilePicture;
-
-    private String profilePictureBase64;
+    private String picture;
 
     private String confirmCode;
 
@@ -82,13 +80,9 @@ public class User {
         return articles;
     }
 
-    @Column(name = "profilePicture")
-    public byte[] getProfilePicture() {
-        return profilePicture;
-    }
-
-    public String getProfilePictureBase64() {
-        return profilePictureBase64;
+    @Column(name = "picture")
+    public String getPicture() {
+        return picture;
     }
 
     @Column(name = "confirmCode")
@@ -98,9 +92,7 @@ public class User {
 
     @Transient
     public boolean isAdmin(){
-        return this.getRoles()
-                .stream()
-                .anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
+        return this.getRoles().stream().anyMatch(role -> role.getName().equals("ROLE_ADMIN"));
     }
 
     @Transient

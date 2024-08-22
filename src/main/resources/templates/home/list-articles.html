@@ -11,7 +11,7 @@
                             <img th:if="${article.articlePictureBase64}" id="preview-image" class="img-fluid" th:src="@{'data:image/jpeg;base64,'+${article.articlePictureBase64}}" height="250" width="250" alt=""/>
                         </header>
 
-                        <p th:text="${article.summary}"></p>
+                        <p th:text="${article.content}"></p>
 
                         <small class="author" th:text="${article.author.fullName}"></small>
                         <p>

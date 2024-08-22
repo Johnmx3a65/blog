@@ -14,7 +14,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToMany;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import java.util.List;
 
 @Entity
@@ -37,9 +36,7 @@ public class Article {
 
     private List<Tag> tags;
 
-    private byte[] articlePicture;
-
-    private String articlePictureBase64;
+    private String picture;
 
     @ManyToMany()
     @JoinColumn(table = "articles_tags")
@@ -75,19 +72,8 @@ public class Article {
         return category;
     }
 
-    @Column(name = "articlePicture")
-    public byte[] getArticlePicture() {
-        return articlePicture;
+    @Column(name = "picture")
+    public String getPicture() {
+        return picture;
     }
-
-    public String getArticlePictureBase64() {
-        return articlePictureBase64;
-    }
-
-    @Transient
-    public String getSummary(){
-        return this.getContent().substring(0, this.getContent().length()/2) + "...";
-    }
-
-
 }

@@ -8,7 +8,6 @@ import blog.entity.Category;
 import blog.repository.CategoryRepository;
 import blog.service.HomeService;
 
-import java.util.Base64;
 import java.util.List;
 
 import static blog.util.StringUtils.ARTICLES;
@@ -45,12 +44,6 @@ public class HomeServiceImpl implements HomeService {
 
         Category category = this.categoryRepository.getReferenceById(id);
         List<Article> articles = category.getArticles();
-
-        for (Article article : articles){
-            if(article.getArticlePicture() != null){
-                article.setArticlePictureBase64(Base64.getEncoder().encodeToString(article.getArticlePicture()));
-            }
-        }
 
         model.addAttribute(ARTICLES, articles);
         model.addAttribute(CATEGORY, category);
