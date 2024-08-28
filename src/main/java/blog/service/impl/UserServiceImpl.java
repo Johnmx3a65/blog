@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.stereotype.Service;
@@ -39,6 +40,8 @@ public class UserServiceImpl implements UserService {
 
     private final MailSenderService mailSenderService;
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Override
     public String loadRegisterView(Model model){
         model.addAttribute(VIEW, USER_REGISTER);
@@ -51,13 +54,13 @@ public class UserServiceImpl implements UserService {
             return REDIRECT_REGISTER;
         }
 
-        BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+        String encodedPassword = passwordEncoder.encode(userModel.getPassword());
 
         User user = User
                 .builder()
                 .email(userModel.getEmail())
                 .fullName(userModel.getFullName())
-                .password(bCryptPasswordEncoder.encode(userModel.getPassword()))
+                .password(encodedPassword)
                 .build();
 
         if(!userModel.getPicture().isEmpty()){
@@ -92,7 +95,11 @@ public class UserServiceImpl implements UserService {
             return USER_FORGOT_PASSWORD_INPUT_EMAIL;
         }
 
-        User user = this.userRepository.findByEmail(userModel.getEmail());
+        User user = this.userRepository
+            .findByEmail(userModel.getEmail())
+            .orElseThrow(() -> new UsernameNotFoundException(
+                MessageFormat.format(INVALID_USERNAME, userModel.getEmail())
+            ));
 
         if(user == null){
             return USER_FORGOT_PASSWORD_INPUT_EMAIL;
@@ -128,7 +135,12 @@ public class UserServiceImpl implements UserService {
     public String loadProfilePageView(Model model) {
         UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        User user = this.userRepository.findByEmail(principal.getUsername());
+        User user = this.userRepository
+            .findByEmail(principal.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException(
+                MessageFormat.format(INVALID_USERNAME, principal.getUsername())
+            ));
+
         List<Article> articles = user.getArticles();
 
         model.addAttribute(ARTICLES, articles);
@@ -185,9 +197,8 @@ public class UserServiceImpl implements UserService {
         boolean confirmCodesMatch = userEditModel.getConfirmCode().equals(user.getConfirmCode());
 
         if(passwordsMatch && confirmCodesMatch){
-            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-
-            user.setPassword(bCryptPasswordEncoder.encode(userEditModel.getPassword()));
+            String passwordEncoded = passwordEncoder.encode(userEditModel.getPassword());
+            user.setPassword(passwordEncoded);
             user.setConfirmCode(null);
 
             this.userRepository.saveAndFlush(user);
@@ -236,8 +247,8 @@ public class UserServiceImpl implements UserService {
         String confirmPassword = userEditModel.getConfirmPassword();
 
         if(!(password.isEmpty() || confirmPassword.isEmpty()) && password.equals(confirmPassword)){
-            BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-            user.setPassword(bCryptPasswordEncoder.encode(password));
+            String passwordEncoded = passwordEncoder.encode(password);
+            user.setPassword(passwordEncoded);
         }
 
         if(!userEditModel.getPicture().isEmpty()){

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.ui.Model;
 import blog.model.ArticleModel;
@@ -50,8 +51,14 @@ public class ArticleServiceImpl implements ArticleService {
 
     @Override
     public String createArticle(ArticleModel articleModel) throws IOException {
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        User userEntity = this.userRepository.findByEmail(user.getUsername());
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        User userEntity = this.userRepository
+            .findByEmail(principal.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException(
+                MessageFormat.format(INVALID_USERNAME, principal.getUsername())
+            ));
+
         Category category = this.categoryRepository
                 .findById(articleModel.getCategoryId())
                 .orElseThrow(() -> new IllegalArgumentException(
@@ -89,7 +96,11 @@ public class ArticleServiceImpl implements ArticleService {
         if(!(SecurityContextHolder.getContext().getAuthentication() instanceof AnonymousAuthenticationToken)){
             UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-            User entityUser = this.userRepository.findByEmail(principal.getUsername());
+            User entityUser = this.userRepository
+                .findByEmail(principal.getUsername())
+                .orElseThrow(() -> new UsernameNotFoundException(
+                    MessageFormat.format(INVALID_USERNAME, principal.getUsername())
+                ));
 
             model.addAttribute(USER, entityUser);
         }
@@ -228,9 +239,13 @@ public class ArticleServiceImpl implements ArticleService {
     }
 
     private boolean neitherAuthorOrAdmin(Article article){
-        UserDetails user = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        UserDetails principal = (UserDetails) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 
-        User userEntity = this.userRepository.findByEmail(user.getUsername());
+        User userEntity = this.userRepository
+            .findByEmail(principal.getUsername())
+            .orElseThrow(() -> new UsernameNotFoundException(
+                MessageFormat.format(INVALID_USERNAME, principal.getUsername())
+            ));
 
         return !(userEntity.isAdmin() || userEntity.isAuthor(article));
     }

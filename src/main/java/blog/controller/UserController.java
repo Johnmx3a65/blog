@@ -2,7 +2,6 @@ package blog.controller;
 
 import blog.service.UserService;
 import lombok.AllArgsConstructor;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -61,7 +60,6 @@ public class UserController {
     }
 
     @GetMapping("/profile")
-    @PreAuthorize("isAuthenticated()")
     public String profilePage(Model model) throws IOException {
         return this.userService.loadProfilePageView(model);
     }
@@ -72,13 +70,11 @@ public class UserController {
     }
 
     @GetMapping("/user/edit/{id}")
-    @PreAuthorize("isAuthenticated()")
     public String edit(@PathVariable Integer id, Model model){
         return this.userService.loadEditView(id, model);
     }
 
     @PostMapping("/user/edit/{id}")
-    @PreAuthorize("isAuthenticated()")
     public String editProcess(@PathVariable Integer id, UserEditModel userEditModel) throws IOException {
         return this.userService.editUser(id, userEditModel);
     }

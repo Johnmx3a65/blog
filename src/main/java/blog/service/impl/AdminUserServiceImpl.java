@@ -28,6 +28,8 @@ public class AdminUserServiceImpl implements AdminUserService {
 
     private final RoleRepository roleRepository;
 
+    private final BCryptPasswordEncoder passwordEncoder;
+
     @Override
     public String loadListUsersView(Model model){
         List<User> users = this.userRepository.findAll();
@@ -70,8 +72,8 @@ public class AdminUserServiceImpl implements AdminUserService {
         String confirmPassword = userEditModel.getConfirmPassword();
 
         if(!(password.isEmpty() || confirmPassword.isEmpty()) && password.equals(confirmPassword)){
-                BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
-                user.setPassword(bCryptPasswordEncoder.encode(userEditModel.getPassword()));
+            String encodedPassword = passwordEncoder.encode(userEditModel.getPassword());
+            user.setPassword(encodedPassword);
         }
 
         user.setFullName(userEditModel.getFullName());
